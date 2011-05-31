@@ -47,6 +47,7 @@ class SRSS extends DomDocument implements Iterator
 		$this->items = array();
 		$this->position = 0;
 		$this->formatOutput = true;
+		$this->preserveWhiteSpace = false;
 	}
 	
 	/**
@@ -271,6 +272,25 @@ class SRSS extends DomDocument implements Iterator
 	}
 	
 	/**
+	 * add a SRSS Item as an item into current RSS as first item
+	 * @param SRSSItem $item
+	 */
+	public function addItemBefore(SRSSItem $item)
+	{
+		$node = $this->importNode($item->getItem(), true);
+		$items =  $this->getElementsByTagName('item');
+		if($items->length != 0){
+			$firstNode = $items->item(0);
+			if($firstNode != null)
+				$firstNode->parentNode->insertBefore($node, $firstNode);
+			else
+				$this->addItem($item);
+			}
+		else
+				$this->addItem($item);
+	}
+	
+	/**
 	 * add a SRSS Item as an item into current RSS
 	 * @param SRSSItem $item
 	 */
@@ -385,7 +405,7 @@ class SRSS extends DomDocument implements Iterator
 		{
 			if($child->nodeType == XML_ELEMENT_NODE && $child->nodeName != 'item')
 			{
-				$this->{$child->nodeName} = $child->nodeValue;
+				$this->attr[$child->nodeName] = $child->nodeValue;
 			}
 		}
 	}
