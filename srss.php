@@ -374,15 +374,6 @@ class SRSS extends DomDocument implements Iterator
 		return $this->saveXml();
 	}
 	
-	/**
-	 * save XML on server
-	 * @param 
-	 * see DomDocument's docs
-	 */
-	public function save($path)
-	{
-		return $this->save($path);
-	}
 	
 	/**
 	 * putting all RSS attributes into the object
