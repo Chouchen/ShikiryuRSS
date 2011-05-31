@@ -381,7 +381,7 @@ class SRSS extends DomDocument implements Iterator
 	 */
 	public function save($path)
 	{
-		return $this->saveXml($path);
+		return $this->save($path);
 	}
 	
 	/**
