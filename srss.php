@@ -106,6 +106,27 @@ class SRSS extends DomDocument implements Iterator
 	}
 	
 	/**
+	 * getter of "image"'s channel attributes
+	 * @return string or array
+	 */
+	public function image()
+	{
+		$args = func_get_args();
+		if(func_num_args() == 0) $args[0] = 'url';
+		$r = array();
+		if(!empty($this->attr['image']))
+		{
+			foreach($this->attr['image'] as $key => $val)
+			{
+				if(in_array($key, $args))
+					$r[$key] = $val;
+			}
+		}
+		else return;
+		return (func_num_args() > 1) ? $r : $r[$args[0]];
+	}
+	
+	/**
 	 * setter of "image"'s channel attributes
 	 * @param $url picture's url
 	 * @param $title picture's title
@@ -405,7 +426,15 @@ class SRSS extends DomDocument implements Iterator
 		{
 			if($child->nodeType == XML_ELEMENT_NODE && $child->nodeName != 'item')
 			{
-				$this->attr[$child->nodeName] = $child->nodeValue;
+				if($child->nodeName == 'image'){
+					foreach($child->childNodes as $children)
+					{
+						if($children->nodeType == XML_ELEMENT_NODE)
+							$this->attr['image'][$children->nodeName] = $children->nodeValue;
+					}
+				}
+				else
+					$this->attr[$child->nodeName] = $child->nodeValue;
 			}
 		}
 	}
