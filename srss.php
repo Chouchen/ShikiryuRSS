@@ -113,16 +113,17 @@ class SRSS extends DomDocument implements Iterator
 	{
 		$args = func_get_args();
 		if(func_num_args() == 0) $args[0] = 'url';
+		$img = $this->xpath->query('//channel/image');
+		if($img->length != 1) return; // <image> is not in channel
+		$img = $img->item(0);
 		$r = array();
-		if(!empty($this->attr['image']))
+		foreach($img->childNodes as $child)
 		{
-			foreach($this->attr['image'] as $key => $val)
+			if($child->nodeType == XML_ELEMENT_NODE && in_array($child->nodeName, $args))
 			{
-				if(in_array($key, $args))
-					$r[$key] = $val;
+				$r[$child->nodeName] = $child->nodeValue;
 			}
 		}
-		else return;
 		return (func_num_args() > 1) ? $r : $r[$args[0]];
 	}
 	
@@ -683,10 +684,23 @@ class SRSSTools
 	 * format a date for RSS format
 	 * @param $date string date to format
 	 */
-	public static function getRSSDate($date)
+	public static function getRSSDate($date, $format='')
 	{
-		if(strtotime($date) !==false)
+		$datepos = 'dDjlNSwzWFmMntLoYyaABgGhHisueIOPTZcrU';
+		if($format != '' && preg_match('~^(['.$datepos.']{1})(-|/)(['.$datepos.']{1})(-|/)(['.$datepos.']{1})$~', $format, $match)){
+			$sep = $match[2];
+			$format = '%'.$match[1].$sep.'%'.$match[3].$sep.'%'.$match[5];
+			if($dateArray = strptime($date, $format)){
+				$mois = intval($dateArray['tm_mon']) + 1;
+				$annee = strlen($dateArray['tm_year']) > 2 ? '20'.substr($dateArray['tm_year'], -2) : '19'.$dateArray['tm_year'];
+				$date = $annee.'-'.$mois.'-'.$dateArray['tm_mday'];
+				return date("D, d M Y H:i:s T", strtotime($date));
+			}
+			return '';
+		}
+		else if(strtotime($date) !==false ){
 			return date("D, d M Y H:i:s T", strtotime($date));
+		}
 		else
 		{
 			list($j, $m, $a) = explode('/', $date);
