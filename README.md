@@ -20,7 +20,7 @@ Or looping them :
 
     foreach($rss as $article)
     {
-		echo '<a href="'.$article->link.'">'. SRSSTools::formatDate('d/m/y', $item->pubDate).' '.$item->title.'';
+        echo '<a href="'.$article->link.'">'. SRSSTools::formatDate('d/m/y', $item->pubDate).' '.$item->title.'';
     }
 
 If you like arrays, you can transform the RSS into an array :
@@ -49,12 +49,12 @@ Those 3 are mandatory to validate your RSS, other options can be added.
 Then, you can add articles. Let's imagine $content contains an array from your database.
 
     foreach($content as $item){
-		$rssitem= new SRSSItem; // we create an item
-		$rssitem->title = $item["title"]; // adding title (option)
-		$rssitem->link = $item['link']; // adding link (option)
-		$rssitem->pubDate = $item["date"]; // date automatically transformed into RSS format (option)
-		$rssitem->description = $item["text"]; // adding description (mandatory)
-		$rss->addItem($rssitem); // we add the item into our RSS
+        $rssitem= new SRSSItem; // we create an item
+        $rssitem->title = $item["title"]; // adding title (option)
+        $rssitem->link = $item['link']; // adding link (option)
+        $rssitem->pubDate = $item["date"]; // date automatically transformed into RSS format (option)
+        $rssitem->description = $item["text"]; // adding description (mandatory)
+        $rss->addItem($rssitem); // we add the item into our RSS
     }
 
 There are 2 functions to add item.
