@@ -1,0 +1,118 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>ShikiryuRSS by Chouchen</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <script src="javascripts/scale.fix.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1 class="header">ShikiryuRSS</h1>
+        <p class="header">Create and read RSS file in PHP</p>
+
+        <ul>
+          <li class="download"><a class="buttons" href="https://github.com/Chouchen/ShikiryuRSS/zipball/master">Download ZIP</a></li>
+          <li class="download"><a class="buttons" href="https://github.com/Chouchen/ShikiryuRSS/tarball/master">Download TAR</a></li>
+          <li><a class="buttons github" href="https://github.com/Chouchen/ShikiryuRSS">View On GitHub</a></li>
+        </ul>
+
+        <p class="header">This project is maintained by <a class="header name" href="https://github.com/Chouchen">Chouchen</a></p>
+
+
+      </header>
+      <section>
+        <p>All documentation @ <a href="http://labs.shikiryu.com/SRSS/#_how">http://labs.shikiryu.com/SRSS/#_how</a></p>
+
+<hr><p>How to make it read RSS?</p>
+
+<p>First, we need to load the RSS :</p>
+
+<pre><code>$rss = SRSS::read('http://exemple.com/rss.xml');
+</code></pre>
+
+<p>Easy, right? Then you can extract general informations :</p>
+
+<pre><code>echo $rss-&gt;title; // will display blog title
+</code></pre>
+
+<p>Then, you can take care of articles. You can select a precise article :</p>
+
+<pre><code>$article1 = $rss-&gt;getItem(1); // or $rss-&gt;getFirst();
+</code></pre>
+
+<p>Or looping them :</p>
+
+<pre><code>foreach($rss as $article)
+{
+    echo '&lt;a href="'.$article-&gt;link.'"&gt;'. SRSSTools::formatDate('d/m/y', $item-&gt;pubDate).' '.$item-&gt;title.'';
+}
+</code></pre>
+
+<p>If you like arrays, you can transform the RSS into an array :</p>
+
+<pre><code>$rssArray = $rss-&gt;toArray();
+</code></pre>
+
+<p>You can also save it into your server with :</p>
+
+<pre><code>$rss-&gt;save('/www/rss/rss.xml'); // example
+</code></pre>
+
+<hr><p>How to make it create RSS?</p>
+
+<p>First, we need to initialize the RSS :</p>
+
+<pre><code>$rss = SRSS::create();
+</code></pre>
+
+<p>Easy, right? Then you can add general informations :</p>
+
+<pre><code>$rss-&gt;title = 'My Awesome Blog';
+$rss-&gt;link = 'http://shikiryu.com/devblog/';
+$rss-&gt;description = 'is awesome';
+</code></pre>
+
+<p>Those 3 are mandatory to validate your RSS, other options can be added.
+Then, you can add articles. Let's imagine $content contains an array from your database.</p>
+
+<pre><code>foreach($content as $item){
+    $rssitem= new SRSSItem; // we create an item
+    $rssitem-&gt;title = $item["title"]; // adding title (option)
+    $rssitem-&gt;link = $item['link']; // adding link (option)
+    $rssitem-&gt;pubDate = $item["date"]; // date automatically transformed into RSS format (option)
+    $rssitem-&gt;description = $item["text"]; // adding description (mandatory)
+    $rss-&gt;addItem($rssitem); // we add the item into our RSS
+}
+</code></pre>
+
+<p>There are 2 functions to add item.
+The first one will add items in the order you enter them, from top to bottom.</p>
+
+<pre><code>$rss-&gt;addItem($item);
+</code></pre>
+
+<p>The other one does the opposite and add the next item in top of your RSS</p>
+
+<pre><code>$rss-&gt;addItemBefore($item);
+</code></pre>
+
+<hr><p>Contact :
+<a href="http://shikiryu.com/contact">http://shikiryu.com/contact</a></p>
+      </section>
+      <footer>
+        <p><small>Hosted on <a href="https://pages.github.com">GitHub Pages</a> using the Dinky theme</small></p>
+      </footer>
+    </div>
+    <!--[if !IE]><script>fixScale(document);</script><![endif]-->
+		
+  </body>
+</html>
