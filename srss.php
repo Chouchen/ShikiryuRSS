@@ -1,9 +1,16 @@
-<?php 
+<?php
+
 /**
-	TODO textinput a 4 sous enfant
-	TODO language
-	TODO CDATA ?
-	*/
+	* TODO textinput a 4 sous enfant
+	* TODO language
+	* TODO CDATA ?
+ * @property string generator
+ * @property null|string image
+ * @property null|string cloud
+ * @property null|string title
+ * @property null|string link
+ * @property null|string description
+ */
 class SRSS extends DomDocument implements Iterator
 {
 	protected $xpath; // xpath engine
@@ -63,13 +70,14 @@ class SRSS extends DomDocument implements Iterator
 	}
 	
 	/**
-	 * @param $link url of the rss
+	 * @param $link string url of the rss
+	 * @throws SRSSException
 	 * @return SRSS
 	 */
 	public static function read($link)
 	{
 		$doc = new SRSS;
-		if(@$doc->load($link)) // We don't want the warning in case of bad XML. Let's manage it.
+		if(@$doc->load($link)) // We don't want the warning in case of bad XML. Let's manage it with an exception.
 		{	
 			$channel = $doc->getElementsByTagName('channel');
 			if($channel->length == 1){ // Good URL and good RSS 
@@ -101,7 +109,7 @@ class SRSS extends DomDocument implements Iterator
 		$doc->appendChild($root);
 		$doc->encoding = "UTF-8";
 		$doc->generator = 'Shikiryu RSS';
-		$docs = 'http://www.scriptol.fr/rss/RSS-2.0.html';
+		// $docs = 'http://www.scriptol.fr/rss/RSS-2.0.html';
 		return $doc;
 	}
 	
@@ -114,7 +122,7 @@ class SRSS extends DomDocument implements Iterator
 		$args = func_get_args();
 		if(func_num_args() == 0) $args[0] = 'url';
 		$img = $this->xpath->query('//channel/image');
-		if($img->length != 1) return; // <image> is not in channel
+		if($img->length != 1) return null; // <image> is not in channel
 		$img = $img->item(0);
 		$r = array();
 		foreach($img->childNodes as $child)
@@ -129,12 +137,12 @@ class SRSS extends DomDocument implements Iterator
 	
 	/**
 	 * setter of "image"'s channel attributes
-	 * @param $url picture's url
-	 * @param $title picture's title
-	 * @param $link link on the picture
-	 * @param $width width
-	 * @param $height height
-	 * @param $description description
+	 * @param $url string  picture's url
+	 * @param $title string picture's title
+	 * @param $link string link on the picture
+	 * @param $width int width
+	 * @param $height int height
+	 * @param $description string description
 	 */
 	public function setImage($url, $title, $link, $width = 0, $height = 0, $description = '')
 	{
@@ -192,11 +200,11 @@ class SRSS extends DomDocument implements Iterator
 	
 	/**
 	 * setter of "cloud"'s channel attributes
-	 * @param $domain domain
-	 * @param $port port
-	 * @param $path path
-	 * @param $registerProcedure register procedure
-	 * @param $protocol protocol
+	 * @param $domain string domain
+	 * @param $port int port
+	 * @param $path string path
+	 * @param $registerProcedure string register procedure
+	 * @param $protocol string protocol
 	 */
 	public function setCloud($domain, $port, $path, $registerProcedure, $protocol)
 	{
@@ -244,9 +252,11 @@ class SRSS extends DomDocument implements Iterator
 		}
 		return ($valid && $this->title != null && $this->link != null && $this->description != null);
 	}
-	
+
 	/**
 	 * getter of current RSS channel
+	 * @return DOMElement
+	 * @throws SRSSException
 	 */
 	private function _getChannel()
 	{
@@ -254,9 +264,12 @@ class SRSS extends DomDocument implements Iterator
 		if($channel->length != 1) throw new SRSSException('channel node not created, or too many channel nodes');
 		return $channel->item(0);
 	}
-	
+
 	/**
 	 * setter of others attributes
+	 * @param $name
+	 * @param $val
+	 * @throws SRSSException
 	 */
 	public function __set($name, $val)
 	{
@@ -275,18 +288,21 @@ class SRSS extends DomDocument implements Iterator
 			throw new SRSSException($name.' is not a possible item');
 		}
 	}
-	
+
 	/**
 	 * getter of others attributes
+	 * @param $name
+	 * @return null|string
+	 * @throws SRSSException
 	 */
 	public function __get($name)
 	{
 		if(isset($this->attr[$name]))
 			return $this->attr[$name];
-		$channel = $this->_getChannel();
+//		$channel = $this->_getChannel();
 		if(array_key_exists($name, $this->possibleAttr)){ 
 			$tmp = $this->xpath->query('//channel/'.$name);
-			if($tmp->length != 1) return;
+			if($tmp->length != 1) return null;
 			return $tmp->item(0)->nodeValue;
 		}else{
 			throw new SRSSException($name.' is not a possible value.');
@@ -387,17 +403,18 @@ class SRSS extends DomDocument implements Iterator
 		$i--;
 		return isset($this->items[$i]) ? $this->items[$i] : null;
 	}
-	
+
 	/**
 	 * getter of all items
-	 * @return array of SRSSItem
+	 * @return SRSSItem[]
+	 * @throws SRSSException
 	 */
 	public function getItems()
 	{
 		$channel = $this->_getChannel();
 		$item = $channel->getElementsByTagName('item');
 		$length = $item->length;
-		$items = array();
+		$this->items = array();
 		if($length > 0){
 			for($i = 0; $i < $length; $i++)
 			{
@@ -459,9 +476,16 @@ class SRSS extends DomDocument implements Iterator
 	}
 }
 
+/**
+ * @property null|string enclosure
+ * @property null|string description
+ */
 class SRSSItem extends DomDocument
 {
 
+	/**
+	 * @var DOMElement
+	 */
 	protected $node; // item node
 	protected $attr; // item's properties
 
@@ -481,7 +505,7 @@ class SRSSItem extends DomDocument
 	
 	/** 
 	 * Constructor
-	 * @param DomElement $node
+	 * @param DomNode $node
 	 */
 	public function __construct($node = null)
 	{
@@ -548,9 +572,12 @@ class SRSSItem extends DomDocument
 	{
 		return $this->description != null ? true : false;
 	}
-	
+
 	/**
 	 * main setter for properties
+	 * @param $name
+	 * @param $val
+	 * @throws SRSSException
 	 */
 	public function __set($name, $val)
 	{
@@ -571,9 +598,12 @@ class SRSSItem extends DomDocument
 			throw New SRSSException($name.' is not a possible item : '.print_r($this->possibilities));
 		}
 	}
-	
+
 	/**
 	 * main getter for properties
+	 * @param $name
+	 * @return null|string
+	 * @throws SRSSException
 	 */
 	public function __get($name)
 	{
@@ -582,7 +612,7 @@ class SRSSItem extends DomDocument
 		if(array_key_exists($name, $this->possibilities))
 		{
 			$tmp = $this->node->getElementsByTagName($name);
-			if($tmp->length != 1) return;
+			if($tmp->length != 1) return null;
 			return $tmp->item(0)->nodeValue;
 		}
 		else
@@ -673,16 +703,18 @@ class SRSSTools
 	 * format the RSS to the wanted format
 	 * @param $format string wanted format
 	 * @param $date string RSS date
-	 * @return date
+	 * @return string date
 	 */
 	public static function formatDate($format, $date)
 	{
 		return date($format, strtotime($date));
 	}
-	
+
 	/**
 	 * format a date for RSS format
-	 * @param $date string date to format
+	 * @param string $date date to format
+	 * @param string $format
+	 * @return string
 	 */
 	public static function getRSSDate($date, $format='')
 	{
@@ -711,7 +743,7 @@ class SRSSTools
 	/** 
 	 * check if it's an url
 	 * @param $check string to check
-	 * @return the filtered data, or FALSE if the filter fails. 
+	 * @return string|boolean the filtered data, or FALSE if the filter fails.
 	 */
 	public static function checkLink($check)
 	{
@@ -721,7 +753,7 @@ class SRSSTools
 	/** 
 	 * make a string XML-compatible
 	 * @param $check string to format
-	 * @return formated string
+	 * @return string formatted string
 	 * TODO CDATA ?
 	 */
 	public static function HTML4XML($check)
@@ -732,7 +764,7 @@ class SRSSTools
 	/**
 	 * delete html tags
 	 * @param $check string to format
-	 * @return formated string
+	 * @return string formatted string
 	 */
 	public static function noHTML($check)
 	{
@@ -742,7 +774,7 @@ class SRSSTools
 	/** 
 	 * check if it's a day (in RSS terms)
 	 * @param $check string to check
-	 * @return theday, or empty string
+	 * @return string the day, or empty string
 	 */
 	public static function checkDay($check)
 	{
@@ -753,7 +785,7 @@ class SRSSTools
 	/** 
 	 * check if it's an email
 	 * @param $check string to check
-	 * @return the filtered data, or FALSE if the filter fails. 
+	 * @return string|boolean the filtered data, or FALSE if the filter fails.
 	 */
 	public static function checkEmail($check)
 	{
@@ -763,7 +795,7 @@ class SRSSTools
 	/** 
 	 * check if it's an hour (in RSS terms)
 	 * @param $check string to check
-	 * @return the filtered data, or FALSE if the filter fails. 
+	 * @return string|boolean the filtered data, or FALSE if the filter fails.
 	 */
 	public static function checkHour($check)
 	{
@@ -780,7 +812,7 @@ class SRSSTools
 	/** 
 	 * check if it's an int
 	 * @param $check int to check
-	 * @return the filtered data, or FALSE if the filter fails. 
+	 * @return int|boolean the filtered data, or FALSE if the filter fails.
 	 */
 	public static function checkInt($check)
 	{
