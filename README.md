@@ -1,5 +1,9 @@
 All documentation @ http://labs.shikiryu.com/SRSS/#_how
 
+**disclaimer:**
+This class is functionnal. Anyway, use it only if you don't have other choices.  
+For example, [Zend](http://framework.zend.com/manual/current/en/modules/zend.feed.introduction.html) and Symfony got their own RSS factory, don't add another one in.
+
 ----------------------------------
 
 How to make it read RSS?
