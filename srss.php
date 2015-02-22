@@ -1,9 +1,5 @@
 <?php
-
 /**
-	* TODO textinput a 4 sous enfant
-	* TODO language
-	* TODO CDATA ?
  * @property string generator
  * @property null|string image
  * @property null|string cloud
@@ -115,7 +111,7 @@ class SRSS extends DomDocument implements Iterator
 	
 	/**
 	 * getter of "image"'s channel attributes
-	 * @return string or array
+	 * @return string|array
 	 */
 	public function image()
 	{
