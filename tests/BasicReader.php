@@ -11,6 +11,7 @@ class BasicReader extends TestCase
         $rss = SRSS::read(__DIR__.'/resources/basic.xml');
         self::assertEquals('test Home Page', $rss->title);
         $first_item = $rss->getFirst();
+        self::assertNotNull($first_item);
         self::assertEquals('RSS Tutorial', $first_item->title);
     }
 

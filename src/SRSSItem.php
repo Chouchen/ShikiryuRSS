@@ -4,18 +4,22 @@ namespace Shikiryu\SRSS;
 
 use DOMDocument;
 use DOMElement;
-use Shikiryu\SRSS\Media\Content;
+use DOMException;
+use DOMNode;
+use Shikiryu\SRSS\Entity\Item;
+use Shikiryu\SRSS\Entity\Media\Content;
 
+/**
+ * @property string|null $description
+ */
 class SRSSItem extends DomDocument
 {
-    /**
-     * @var DOMElement
-     */
-    protected $node; // item node
+
+    protected DOMNode $node; // item node
     protected $attr; // item's properties
 
     // possible properties' names
-    protected $possibilities = [
+    protected static $possibilities = [
         'title'         => 'nohtml',
         'link'          => 'link',
         'description'   => 'html',
@@ -38,44 +42,53 @@ class SRSSItem extends DomDocument
     public function __construct($node = null)
     {
         parent::__construct();
-        if ($node instanceof DOMElement) $this->node = $this->importNode($node, true);
-        else $this->node = $this->importNode(new DomElement('item'));
-        $this->_loadAttributes();
+//        if ($node instanceof DOMElement) $this->node = $this->importNode($node, true);
+//        else $this->node = $this->importNode(new DomElement('item'));
+//        $this->_loadAttributes();
     }
 
     /**
-     * putting all item attributes into the object
-     */
-    private function _loadAttributes(): void
-    {
-        $this->_loadChildAttributes($this->node->childNodes);
-    }
-
-    /**
+     * @param Item $item
      * @param $nodes
      *
      * @return void
      */
-    private function _loadChildAttributes($nodes): void
+    private static function _loadChildAttributes(Item $item, $nodes): void
     {
-        foreach ($nodes as $child) {
+        foreach ($nodes->childNodes as $child) {
             if ($child->nodeType === XML_ELEMENT_NODE && $child->nodeName !== 'item') {
-                if (array_key_exists($child->nodeName, $this->possibilities) && $this->possibilities[$child->nodeName] === 'folder') {
-                    $this->_loadChildAttributes($child->childNodes);
-                }
-                if  ($child->nodeName === 'media:content') {
-                    $this->{$child->nodeName} = new Content($child);
+                if (array_key_exists($child->nodeName, self::$possibilities) && self::$possibilities[$child->nodeName] === 'folder') {
+                    self::_loadChildAttributes($item, $child);
+                } elseif  ($child->nodeName === 'media:group') {
+                    // TODO
+                } elseif  ($child->nodeName === 'media:content') {
+                    $item->{$child->nodeName} = new Content($child);
                 } else {
-                    $this->{$child->nodeName} = $child->nodeValue;
+                    $item->{$child->nodeName} = $child->nodeValue;
                 }
             }
         }
     }
 
     /**
+     * @param DOMNode|null $node
+     *
+     * @return Item
+     */
+    public static function read(?DOMNode $node = null): Item
+    {
+        $item = new Item();
+        if ($node instanceof DOMNode) {
+            self::_loadChildAttributes($item, $node);
+        }
+
+        return $item;
+    }
+
+    /**
      * getter of item DomElement
      */
-    public function getItem()
+    public function getItem(): ?\DOMNode
     {
         $this->appendChild($this->node);
 
@@ -88,8 +101,9 @@ class SRSSItem extends DomDocument
      * @param $url    string url
      * @param $length int length
      * @param $type   string type
+     * @throws DOMException
      */
-    public function setEnclosure($url, $length, $type)
+    public function setEnclosure(string $url, int $length, string $type): void
     {
         $array = [];
         $url = SRSSTools::checkLink($url);
@@ -112,9 +126,9 @@ class SRSSItem extends DomDocument
      * check if current item is valid (following specifications)
      * @return bool
      */
-    public function isValid()
+    public function isValid(): bool
     {
-        return $this->description != null ? true : false;
+        return $this->description != null;
     }
 
     /**
@@ -133,7 +147,7 @@ class SRSSItem extends DomDocument
      * @param $name
      * @param $val
      *
-     * @throws SRSSException
+     * @throws SRSSException|DOMException
      */
     public function __set($name, $val)
     {
@@ -145,7 +159,9 @@ class SRSSItem extends DomDocument
         if ($flag !== '')
             $val = SRSSTools::check($val, $flag);
         if (!empty($val)) {
-            if ($this->$name == null) {
+            if ($val instanceof DOMElement) {
+                $this->node->appendChild($val);
+            } elseif ($this->$name == null) {
                 $this->node->appendChild(new DomElement($name, $val));
             }
             $this->attr[$name] = $val;

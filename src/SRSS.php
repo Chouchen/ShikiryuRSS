@@ -3,15 +3,22 @@
 namespace Shikiryu\SRSS;
 
 use DOMDocument;
+use DOMNodeList;
 use DOMXPath;
 use Iterator;
+use ReturnTypeWillChange;
+use Shikiryu\SRSS\Entity\Channel;
+use Shikiryu\SRSS\Entity\Channel\Image;
+use Shikiryu\SRSS\Entity\Item;
 
 class SRSS extends DomDocument implements Iterator
 {
-    protected $xpath; // xpath engine
-    protected $items; // array of SRSSItems
+    protected DOMXPath $xpath; // xpath engine
+    protected array $items; // array of SRSSItems
     protected $attr; // array of RSS attributes
     private $position; // Iterator position
+
+    private Channel $channel;
 
     // lists of possible attributes for RSS
     protected $possibleAttr = [
@@ -45,8 +52,8 @@ class SRSS extends DomDocument implements Iterator
         libxml_use_internal_errors(true);
         parent::__construct();
         $this->xpath = new DOMXpath($this);
-        $this->attr = array();
-        $this->items = array();
+        $this->attr = [];
+        $this->items = [];
         $this->position = 0;
         $this->formatOutput = true;
         $this->preserveWhiteSpace = false;
@@ -65,19 +72,19 @@ class SRSS extends DomDocument implements Iterator
     }
 
     /**
-     * @param $link string url of the rss
+     * @param string $link url of the rss
      * @throws SRSSException
      * @return SRSS
      */
-    public static function read($link): SRSS
+    public static function read(string $link): SRSS
     {
         $doc = new SRSS;
-        if(@$doc->load($link)) // We don't want the warning in case of bad XML. Let's manage it with an exception.
-        {
+        if(@$doc->load($link)) { // We don't want the warning in case of bad XML. Let's manage it with an exception.
             $channel = $doc->getElementsByTagName('channel');
             if($channel->length == 1){ // Good URL and good RSS
                 $doc->_loadAttributes(); // loading channel properties
                 $doc->getItems(); // loading all items
+
                 return $doc;
             }
 
@@ -89,6 +96,7 @@ class SRSS extends DomDocument implements Iterator
 
     /**
      * @return SRSS
+     * @throws \DOMException
      */
     public static function create()
     {
@@ -101,25 +109,31 @@ class SRSS extends DomDocument implements Iterator
         $doc->encoding = "UTF-8";
         $doc->generator = 'Shikiryu RSS';
         // $docs = 'http://www.scriptol.fr/rss/RSS-2.0.html';
+        $doc->channel = new Channel();
+        $doc->items = [];
+
         return $doc;
     }
 
     /**
      * getter of "image"'s channel attributes
      * @return string|array
+     * TODO
      */
     public function image()
     {
         $args = func_get_args();
-        if(func_num_args() == 0) $args[0] = 'url';
+        if (func_num_args() == 0) {
+            $args[0] = 'url';
+        }
         $img = $this->xpath->query('//channel/image');
-        if($img->length != 1) return null; // <image> is not in channel
+        if($img->length != 1) { // <image> is not in channel
+            return null;
+        }
         $img = $img->item(0);
-        $r = array();
-        foreach($img->childNodes as $child)
-        {
-            if($child->nodeType == XML_ELEMENT_NODE && in_array($child->nodeName, $args))
-            {
+        $r = [];
+        foreach($img->childNodes as $child) {
+            if($child->nodeType == XML_ELEMENT_NODE && in_array($child->nodeName, $args)) {
                 $r[$child->nodeName] = $child->nodeValue;
             }
         }
@@ -134,6 +148,7 @@ class SRSS extends DomDocument implements Iterator
      * @param $width int width
      * @param $height int height
      * @param $description string description
+     * TODO
      */
     public function setImage($url, $title, $link, $width = 0, $height = 0, $description = '')
     {
@@ -196,6 +211,7 @@ class SRSS extends DomDocument implements Iterator
      * @param $path string path
      * @param $registerProcedure string register procedure
      * @param $protocol string protocol
+     * TODO
      */
     public function setCloud($domain, $port, $path, $registerProcedure, $protocol)
     {
@@ -227,12 +243,13 @@ class SRSS extends DomDocument implements Iterator
     /**
      * check if current RSS is a valid one (based on specifications)
      * @return bool
+     * TODO use required
      */
     public function isValid()
     {
         $valid = true;
         $items = $this->getItems();
-        $invalidItems = array();
+        $invalidItems = [];
         $i = 1;
         foreach($items as $item){
             if($item->isValid() === false){
@@ -246,13 +263,16 @@ class SRSS extends DomDocument implements Iterator
 
     /**
      * getter of current RSS channel
-     * @return DOMElement
+     * @return \DOMNode
      * @throws SRSSException
      */
-    private function _getChannel()
+    private function _getChannel(): \DOMNode
     {
         $channel = $this->getElementsByTagName('channel');
-        if($channel->length != 1) throw new SRSSException('channel node not created, or too many channel nodes');
+        if($channel->length != 1) {
+            throw new SRSSException('channel node not created, or too many channel nodes');
+        }
+
         return $channel->item(0);
     }
 
@@ -298,16 +318,19 @@ class SRSS extends DomDocument implements Iterator
      */
     public function __get($name)
     {
-        if(isset($this->attr[$name]))
-            return $this->attr[$name];
+        if (isset($this->channel->{$name})) {
+            return $this->channel->{$name};
+        }
 //		$channel = $this->_getChannel();
         if(array_key_exists($name, $this->possibleAttr)){
             $tmp = $this->xpath->query('//channel/'.$name);
-            if($tmp->length != 1) return null;
+            if($tmp->length != 1) {
+                return null;
+            }
             return $tmp->item(0)->nodeValue;
-        }else{
-            throw new SRSSException($name.' is not a possible value.');
         }
+
+        throw new SRSSException($name.' is not a possible value.');
     }
 
     /**
@@ -357,71 +380,80 @@ class SRSS extends DomDocument implements Iterator
     /**
      * key from Iterator
      */
-    public  function key() {
+    #[ReturnTypeWillChange] public function key(): int
+    {
         return $this->position;
     }
 
     /**
      * next from Iterator
      */
-    public  function next() {
+    #[ReturnTypeWillChange] public function next(): void
+    {
         ++$this->position;
     }
 
     /**
      * valid from Iterator
      */
-    public  function valid() {
+    #[ReturnTypeWillChange] public function valid(): bool
+    {
         return isset($this->items[$this->position]);
     }
 
     /**
      * getter of 1st item
-     * @return SRSSItem
+     * @return Item
      */
-    public function getFirst()
+    public function getFirst(): ?Item
     {
         return $this->getItem(1);
     }
 
     /**
      * getter of last item
-     * @return SRSSItem
+     * @return Item
      */
-    public function getLast()
+    public function getLast(): Item
     {
         $items = $this->getItems();
-        return $items[count($items)-1];
+        return $items[array_key_last($items)];
     }
 
     /**
      * getter of an item
      * @param $i int
-     * @return SRSSItem
+     *
+     * @return Item|null
      */
-    public function getItem($i)
+    public function getItem(int $i): ?Item
     {
         $i--;
-        return isset($this->items[$i]) ? $this->items[$i] : null;
+        return $this->items[$i] ?? null;
     }
 
     /**
      * getter of all items
-     * @return SRSSItem[]
+     * @return Item[]
      * @throws SRSSException
      */
-    public function getItems()
+    public function getItems(): array
     {
+        if (!empty($this->items)) {
+            return $this->items;
+        }
+
         $channel = $this->_getChannel();
-        $item = $channel->getElementsByTagName('item');
-        $length = $item->length;
+        /** @var DOMNodeList $items */
+        $items = $channel->getElementsByTagName('item');
+        $length = $items->length;
         $this->items = [];
-        if($length > 0){
-            for($i = 0; $i < $length; $i++)
-            {
-                $this->items[$i] = new SRSSItem($item->item($i));
+        if ($length > 0) {
+            for($i = 0; $i < $length; $i++) {
+                $this->items[$i] = SRSSItem::read($items->item($i));
             }
         }
+
         return $this->items;
     }
 
@@ -429,31 +461,36 @@ class SRSS extends DomDocument implements Iterator
      * display XML
      * see DomDocument's docs
      */
-    public function show()
+    public function show(): bool|string
     {
+        // TODO build
         return $this->saveXml();
     }
 
 
     /**
      * putting all RSS attributes into the object
+     * @throws SRSSException
      */
-    private function _loadAttributes()
+    private function _loadAttributes(): void
     {
-        $channel = $this->_getChannel();
-        foreach($channel->childNodes as $child)
-        {
-            if($child->nodeType == XML_ELEMENT_NODE && $child->nodeName != 'item')
-            {
-                if($child->nodeName == 'image'){
-                    foreach($child->childNodes as $children)
-                    {
-                        if($children->nodeType == XML_ELEMENT_NODE)
-                            $this->attr['image'][$children->nodeName] = $children->nodeValue;
+        $node_channel = $this->_getChannel();
+        $this->channel = new Channel();
+
+        foreach($node_channel->childNodes as $child) {
+            if($child->nodeType == XML_ELEMENT_NODE && $child->nodeName !== 'item') {
+                if($child->nodeName == 'image') {
+                    $image = new Image();
+                    foreach($child->childNodes as $children) {
+                        if($children->nodeType == XML_ELEMENT_NODE) {
+                            $image->{$child->nodeName} = $children->nodeValue;
+                        }
                     }
+                    $this->channel->image = $image;
+
+                } else {
+                    $this->channel->{$child->nodeName} = $child->nodeValue;
                 }
-                else
-                    $this->attr[$child->nodeName] = $child->nodeValue;
             }
         }
     }
@@ -461,18 +498,16 @@ class SRSS extends DomDocument implements Iterator
     /**
      * transform current object into an array
      * @return array
+     * @throws SRSSException
      */
-    public function toArray()
+    public function toArray(): array
     {
-        $doc = array();
-        foreach($this->attr as $attrName => $attrVal)
-        {
-            $doc[$attrName] = $attrVal;
-        }
-        foreach($this->getItems() as $item)
-        {
+        $doc = $this->channel->toArray();
+
+        foreach($this->getItems() as $item) {
             $doc['items'][] = $item->toArray();
         }
+
         return $doc;
     }
 }

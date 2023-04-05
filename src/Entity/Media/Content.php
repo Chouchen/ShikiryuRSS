@@ -1,13 +1,14 @@
 <?php
 
-namespace Shikiryu\SRSS\Media;
+namespace Shikiryu\SRSS\Entity\Media;
 
+use DOMDocument;
 use DOMElement;
 use DOMNode;
 use Shikiryu\SRSS\SRSSException;
 use Shikiryu\SRSS\SRSSTools;
 
-class Content extends DOMElement
+class Content extends DomDocument
 {
     protected array $possibilities = [
         'url'          => 'link',
@@ -27,6 +28,8 @@ class Content extends DOMElement
     ];
     private array $attr = [];
 
+    private DOMNode $node;
+
     /**
      * Constructor
      *
@@ -34,16 +37,21 @@ class Content extends DOMElement
      */
     public function __construct(?\DOMNode $node = null)
     {
-        parent::__construct('media:content');
+        parent::__construct();
+        if ($node instanceof DOMElement) {
+            $this->node = $this->importNode($node, true);
+        } else {
+            $this->node = $this->importNode(new DomElement('item'));
+        }
         $this->_loadAttributes();
     }
 
     /**
      * @return void
      */
-    private function _loadAttributes()
+    private function _loadAttributes(): void
     {
-        foreach ($this->attributes as $attributes) {
+        foreach ($this->node->attributes as $attributes) {
             if (array_key_exists($attributes->name, $this->possibilities)) {
                 $this->{$attributes->name} = $attributes->value;
             }
@@ -102,8 +110,11 @@ class Content extends DOMElement
         }
 
         $flag = $this->possibilities[$name];
-        if ($flag !== '')
+
+        if ($flag !== '') {
             $val = SRSSTools::check($val, $flag);
+        }
+
         if (!empty($val)) {
             if ($this->$name === null) {
                 $this->node->appendChild(new DomElement($name, $val));
