@@ -59,10 +59,8 @@ class SRSSItem extends DomDocument
             if ($child->nodeType === XML_ELEMENT_NODE && $child->nodeName !== 'item') {
                 if (array_key_exists($child->nodeName, self::$possibilities) && self::$possibilities[$child->nodeName] === 'folder') {
                     self::_loadChildAttributes($item, $child);
-                } elseif  ($child->nodeName === 'media:group') {
-                    // TODO
                 } elseif  ($child->nodeName === 'media:content') {
-                    $item->{$child->nodeName} = new Content($child);
+                    $item->medias[] = new Content($child);
                 } else {
                     $item->{$child->nodeName} = $child->nodeValue;
                 }

@@ -4,7 +4,7 @@ namespace Shikiryu\SRSS\Entity;
 
 use Shikiryu\SRSS\Entity\Channel\Image;
 
-class Channel
+class Channel implements SRSSElement
 {
     public string $title;
     public string $link;
@@ -28,4 +28,20 @@ class Channel
     public ?string $skipDays;
 
     public array $required = ['title', 'link', 'description'];
+
+    /**
+     * @return bool
+     */
+    public function isValid(): bool
+    {
+        return count(array_filter($this->required, fn($field) => !empty($this->{$field}))) === 0;
+    }
+
+    /**
+     * @return array
+     */
+    public function toArray(): array
+    {
+        return get_object_vars($this);
+    }
 }

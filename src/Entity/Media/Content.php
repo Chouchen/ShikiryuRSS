@@ -58,7 +58,6 @@ class Content extends DomDocument
         }
     }
 
-
     /**
      * main getter for properties
      *

@@ -18,6 +18,7 @@
     "phpunit/phpunit": "^9"
   },
   "require": {
-    "ext-dom": "*"
+    "ext-dom": "*",
+    "ext-libxml": "*"
   }
 }
