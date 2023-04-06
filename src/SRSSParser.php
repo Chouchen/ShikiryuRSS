@@ -7,6 +7,7 @@ use DOMNodeList;
 use DOMXPath;
 use Shikiryu\SRSS\Entity\Channel;
 use Shikiryu\SRSS\Entity\Channel\Image;
+use Shikiryu\SRSS\Entity\Item;
 
 class SRSSParser extends DomDocument
 {
@@ -57,10 +58,10 @@ class SRSSParser extends DomDocument
     }
 
     /**
-     * @return array|mixed
+     * @return Item[]
      * @throws \Shikiryu\SRSS\SRSSException
      */
-    private function getItems()
+    private function getItems(): mixed
     {
         $channel = $this->_getChannel();
         /** @var DOMNodeList $items */

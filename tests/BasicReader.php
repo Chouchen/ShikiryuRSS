@@ -13,6 +13,8 @@ class BasicReader extends TestCase
         $first_item = $rss->getFirst();
         self::assertNotNull($first_item);
         self::assertEquals('RSS Tutorial', $first_item->title);
+
+        self::assertTrue($rss->channel->isValid());
     }
 
     public function testRssNotFound()
@@ -38,5 +40,7 @@ class BasicReader extends TestCase
         self::assertEquals('Star City', $rss->getFirst()->title);
         self::assertEquals('http://liftoff.msfc.nasa.gov/news/2003/news-laundry.asp', $rss->getLast()->link);
         self::assertEquals('Fri, 30 May 2003 11:06:42 GMT', $rss->getItem(2)->pubDate);
+
+        self::assertTrue($rss->channel->isValid());
     }
 }

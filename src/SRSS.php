@@ -8,11 +8,10 @@ use Shikiryu\SRSS\Entity\Item;
 
 class SRSS implements Iterator
 {
-    public array $items; // array of SRSSItems
-    protected $attr; // array of RSS attributes
-    private $position; // Iterator position
-
     public Channel $channel;
+    public array $items; // array of SRSSItems
+
+    private int $position; // Iterator position
 
     // lists of possible attributes for RSS
     protected $possibleAttr = [
@@ -43,7 +42,6 @@ class SRSS implements Iterator
      */
     public function __construct()
     {
-        $this->attr = [];
         $this->items = [];
         $this->position = 0;
     }
@@ -76,9 +74,8 @@ class SRSS implements Iterator
     /**
      * check if current RSS is a valid one (based on specifications)
      * @return bool
-     * TODO use required
      */
-    public function isValid()
+    public function isValid(): bool
     {
         $valid = true;
         $items = $this->getItems();
@@ -115,7 +112,7 @@ class SRSS implements Iterator
      */
     public function __set($name, $val)
     {
-        if (!array_key_exists($name, $this->possibleAttr)) {
+        if (!property_exists(Channel::class, $name)) {
             throw new SRSSException($name . ' is not a possible item');
         }
         $flag = $this->possibleAttr[$name];
@@ -148,7 +145,7 @@ class SRSS implements Iterator
     /**
      * current from Iterator
      */
-    public function current()
+    public function current(): mixed
     {
         return $this->items[$this->position];
     }
@@ -179,7 +176,7 @@ class SRSS implements Iterator
 
     /**
      * getter of 1st item
-     * @return Item
+     * @return Item|null
      */
     public function getFirst(): ?Item
     {
@@ -214,7 +211,6 @@ class SRSS implements Iterator
     /**
      * getter of all items
      * @return Item[]
-     * @throws SRSSException
      */
     public function getItems(): array
     {
@@ -224,7 +220,6 @@ class SRSS implements Iterator
     /**
      * transform current object into an array
      * @return array
-     * @throws SRSSException
      */
     public function toArray(): array
     {

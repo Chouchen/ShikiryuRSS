@@ -6,26 +6,23 @@ class SRSSTools
 {
     public static function check($check, $flag)
     {
-        switch($flag){
-            case 'nohtml': return self::noHTML($check);
-            case 'link': return self::checkLink($check);
-            case 'html': return self::HTML4XML($check);
-            /*case 'lang':
-                return self::noHTML($check);
-            */
-            case 'date': return self::getRSSDate($check);
-            case 'email': return self::checkEmail($check);
-            case 'int': return self::checkInt($check);
-            case 'hour': return self::checkHour($check);
-            case 'day': return self::checkDay($check);
-            case 'folder': return [];
-            case 'media_type': return self::checkMediaType($check);
-            case 'media_medium': return self::checkMediaMedium($check);
-            case 'bool': return self::checkBool($check);
-            case 'medium_expression': return self::checkMediumExpression($check);
-            case '': return $check;
-            default: throw new SRSSException('flag '.$flag.' does not exist.');
-        }
+        return match ($flag) {
+            'nohtml' => self::noHTML($check),
+            'link' => self::checkLink($check),
+            'html' => self::HTML4XML($check),
+            'date' => self::getRSSDate($check),
+            'email' => self::checkEmail($check),
+            'int' => self::checkInt($check),
+            'hour' => self::checkHour($check),
+            'day' => self::checkDay($check),
+            'folder' => [],
+            'media_type' => self::checkMediaType($check),
+            'media_medium' => self::checkMediaMedium($check),
+            'bool' => self::checkBool($check),
+            'medium_expression' => self::checkMediumExpression($check),
+            '' => $check,
+            default => throw new SRSSException('flag ' . $flag . ' does not exist.'),
+        };
     }
 
     /**
