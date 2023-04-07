@@ -1,18 +1,19 @@
 <?php
 
-namespace Shikiryu\SRSS;
+namespace Shikiryu\SRSS\Parser;
 
 use DOMDocument;
 use DOMElement;
 use DOMException;
 use DOMNode;
 use Shikiryu\SRSS\Entity\Item;
-use Shikiryu\SRSS\Entity\Media\Content;
+use Shikiryu\SRSS\Exception\SRSSException;
+use Shikiryu\SRSS\SRSSTools;
 
 /**
  * @property string|null $description
  */
-class SRSSItem extends DomDocument
+class ItemParser extends DomDocument
 {
 
     protected DOMNode $node; // item node
@@ -42,9 +43,6 @@ class SRSSItem extends DomDocument
     public function __construct($node = null)
     {
         parent::__construct();
-//        if ($node instanceof DOMElement) $this->node = $this->importNode($node, true);
-//        else $this->node = $this->importNode(new DomElement('item'));
-//        $this->_loadAttributes();
     }
 
     /**
@@ -60,9 +58,9 @@ class SRSSItem extends DomDocument
                 if (array_key_exists($child->nodeName, self::$possibilities) && self::$possibilities[$child->nodeName] === 'folder') {
                     self::_loadChildAttributes($item, $child);
                 } elseif  ($child->nodeName === 'media:content') {
-                    $item->medias[] = new Content($child);
+                    $item->medias[] = MediaContentParser::read($child);
                 } else {
-                    $item->{$child->nodeName} = $child->nodeValue;
+                    $item->{$child->nodeName} = trim($child->nodeValue);
                 }
             }
         }
@@ -186,15 +184,6 @@ class SRSSItem extends DomDocument
         }
 
         throw new SRSSException(sprintf('%s is not a possible item (%s)', $name, implode(', ', array_keys($this->possibilities))));
-    }
-
-    /**
-     * display item's XML
-     * see DomDocument's docs
-     */
-    public function show()
-    {
-        return $this->saveXml();
     }
 
     /**

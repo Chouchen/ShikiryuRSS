@@ -1,10 +1,10 @@
 <?php
 
 use PHPUnit\Framework\TestCase;
+use Shikiryu\SRSS\Exception\SRSSException;
 use Shikiryu\SRSS\SRSS;
-use Shikiryu\SRSS\SRSSException;
 
-class BasicReader extends TestCase
+class BasicReaderTest extends TestCase
 {
     public function testReadBasicRSS()
     {
@@ -14,7 +14,7 @@ class BasicReader extends TestCase
         self::assertNotNull($first_item);
         self::assertEquals('RSS Tutorial', $first_item->title);
 
-        self::assertTrue($rss->channel->isValid());
+        self::assertTrue($rss->isValid());
     }
 
     public function testRssNotFound()
@@ -41,6 +41,6 @@ class BasicReader extends TestCase
         self::assertEquals('http://liftoff.msfc.nasa.gov/news/2003/news-laundry.asp', $rss->getLast()->link);
         self::assertEquals('Fri, 30 May 2003 11:06:42 GMT', $rss->getItem(2)->pubDate);
 
-        self::assertTrue($rss->channel->isValid());
+        self::assertTrue($rss->isValid());
     }
 }

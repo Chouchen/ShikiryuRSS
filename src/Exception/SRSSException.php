@@ -1,6 +1,6 @@
 <?php
 
-namespace Shikiryu\SRSS;
+namespace Shikiryu\SRSS\Exception;
 
 use Exception;
 

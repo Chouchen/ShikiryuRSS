@@ -1,16 +1,27 @@
 <?php
 
-namespace Shikiryu\SRSS;
+namespace Shikiryu\SRSS\Builder;
 
 use DOMDocument;
+use DOMElement;
+use Shikiryu\SRSS\Entity\Channel;
+use Shikiryu\SRSS\Entity\Item;
+use Shikiryu\SRSS\Parser\ItemParser;
+use Shikiryu\SRSS\SRSS;
+use Shikiryu\SRSS\SRSSTools;
 
 class SRSSBuilder extends DomDocument
 {
-    public function build()
+    public function build(SRSS $srss, string $filepath)
     {
         $root = $this->createElement('rss');
         $root->setAttribute('version', '2.0');
         $channel = $this->createElement('channel');
+
+        $this->appendChannelToDom($srss->channel, $channel);
+
+        $this->appendItemsToDom($srss->items, $channel);
+
         $root->appendChild($channel);
         $this->appendChild($root);
         $this->encoding = 'UTF-8';
@@ -18,13 +29,16 @@ class SRSSBuilder extends DomDocument
         $this->formatOutput = true;
         $this->preserveWhiteSpace = false;
         // $docs = 'http://www.scriptol.fr/rss/RSS-2.0.html';
+
+        $this->save($filepath);
     }
 
     /**
      * add a SRSS Item as an item into current RSS as first item
-     * @param SRSSItem $item
+     *
+     * @param ItemParser $item
      */
-    public function addItemBefore(SRSSItem $item)
+    public function addItemBefore(ItemParser $item)
     {
         $node = $this->importNode($item->getItem(), true);
         $items =  $this->getElementsByTagName('item');
@@ -41,9 +55,10 @@ class SRSSBuilder extends DomDocument
 
     /**
      * add a SRSS Item as an item into current RSS
-     * @param SRSSItem $item
+     *
+     * @param ItemParser $item
      */
-    public function addItem(SRSSItem $item)
+    public function addItem(ItemParser $item)
     {
         $node = $this->importNode($item->getItem(), true);
         $channel = $this->_getChannel();
@@ -54,7 +69,7 @@ class SRSSBuilder extends DomDocument
      * display XML
      * see DomDocument's docs
      */
-    public function show(): bool|string
+    public function show()
     {
         // TODO build
         return $this->saveXml();
@@ -158,5 +173,30 @@ class SRSSBuilder extends DomDocument
             $channel->appendChild($node);
         }
         $this->attr['cloud'] = $array;
+    }
+
+    private function appendChannelToDom(Channel $channel, DOMElement $node)
+    {
+        foreach (array_filter($channel->toArray(), fn($el) => !empty($el)) as $name => $value) {
+            $new_node = $this->createElement($name, $value);
+            $node->appendChild($new_node);
+        }
+    }
+
+    private function appendItemsToDom(array $items, DOMElement $channel)
+    {
+        foreach ($items as $item) {
+            $this->appendItemToDom($item, $channel);
+        }
+    }
+
+    private function appendItemToDom(Item $item, DOMElement $channel)
+    {
+        $itemNode = $this->createElement('item');
+        foreach (array_filter($item->toArray()) as $name => $value) {
+            $new_node = $this->createElement($name, $value);
+            $itemNode->appendChild($new_node);
+        }
+        $channel->appendChild($itemNode);
     }
 }

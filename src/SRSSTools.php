@@ -2,9 +2,11 @@
 
 namespace Shikiryu\SRSS;
 
+use DateTimeInterface;
+
 class SRSSTools
 {
-    public static function check($check, $flag)
+    /*public static function check($check, $flag)
     {
         return match ($flag) {
             'nohtml' => self::noHTML($check),
@@ -19,11 +21,9 @@ class SRSSTools
             'media_type' => self::checkMediaType($check),
             'media_medium' => self::checkMediaMedium($check),
             'bool' => self::checkBool($check),
-            'medium_expression' => self::checkMediumExpression($check),
-            '' => $check,
-            default => throw new SRSSException('flag ' . $flag . ' does not exist.'),
+            'medium_expression' => self::checkMediumExpression($check)
         };
-    }
+    }*/
 
     /**
      * format the RSS to the wanted format
@@ -59,6 +59,10 @@ class SRSSTools
 
         if(strtotime($date) !==false ){
             return date("D, d M Y H:i:s T", strtotime($date));
+        }
+
+        if (count(explode(' ', $date)) === 2) {
+            return \DateTime::createFromFormat('Y-m-d H:i:s', $date)->format(DateTimeInterface::RSS);
         }
 
         [$j, $m, $a] = explode('/', $date);

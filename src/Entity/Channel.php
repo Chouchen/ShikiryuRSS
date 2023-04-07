@@ -16,18 +16,18 @@ class Channel extends HasValidator implements SRSSElement
      * @required
      * @nohtml
      */
-    public string $title;
+    public string $title = '';
 
     /**
      * @required
      * @url
      */
-    public string $link;
+    public string $link = '';
 
     /**
      * @required
      */
-    public string $description;
+    public string $description = '';
 
     /**
      * @lang
@@ -96,9 +96,7 @@ class Channel extends HasValidator implements SRSSElement
      */
     public function isValid(): bool
     {
-        $annotation_validation = new Validator();
-
-        return $annotation_validation->isObjectValid($this);
+        return (new Validator())->isObjectValid($this);
     }
 
     /**
@@ -106,6 +104,8 @@ class Channel extends HasValidator implements SRSSElement
      */
     public function toArray(): array
     {
-        return get_object_vars($this);
+        $vars = get_object_vars($this);
+        unset($vars['validated']);
+        return $vars;
     }
 }

@@ -5,9 +5,36 @@ namespace Shikiryu\SRSS\Validator;
 use DateTimeInterface;
 use ReflectionClass;
 use ReflectionException;
+use ReflectionProperty;
+use Shikiryu\SRSS\Entity\Media\Content;
 
 class Validator
 {
+    protected ?object $object = null;
+    /**
+     * @throws \ReflectionException
+     */
+    public function isPropertyValid($object, $property)
+    {
+        $properties = array_filter($this->_getClassProperties(get_class($object)), fn($p) => $p->getName() === $property);
+        if (count($properties) !== 1) {
+            return false;
+        }
+
+        $properties = current($properties);
+        $propertyValue = $object->{$properties->name};
+        $propertyAnnotations = $this->_getPropertyAnnotations($properties);
+
+        if (!in_array('required', $propertyAnnotations, true) && empty($propertyValue)) {
+            return true;
+        }
+
+        foreach ($propertyAnnotations as $propertyAnnotation) {
+            $annotation = explode(' ', $propertyAnnotation);
+
+            $object->validated[$properties->name] = $this->_validateProperty($annotation, $propertyValue);
+        }
+    }
 
     /**
      * @throws ReflectionException
@@ -18,7 +45,7 @@ class Validator
             $object = $this->validateObject($object);
         }
 
-        return !in_array(false, $object->validated);
+        return !in_array(false, $object->validated, true);
     }
 
     /**
@@ -26,20 +53,25 @@ class Validator
      */
     public function validateObject($object)
     {
+        $this->object = $object;
         $properties = $this->_getClassProperties(get_class($object));
+        $properties = array_map(fn($property) => array_merge(
+            ['name' => $property->name],
+            ['rules' => $this->_getPropertyAnnotations($property)]
+        ), $properties);
 
         foreach ($properties as $property) {
-            $propertyValue = $object->{$property->name};
-            $propertyAnnotations = $this->_getPropertyAnnotations($property, get_class($object));
+            $propertyValue = $object->{$property['name']};
+//            $propertyAnnotations = $this->_getPropertyAnnotations($property, get_class($object));
 
-            if (!in_array('required', $propertyAnnotations) && empty($propertyValue)) {
+            if (!in_array('required', $property['rules'], true) && empty($propertyValue)) {
                 continue;
             }
 
-            foreach ($propertyAnnotations as $propertyAnnotation) {
+            foreach ($property['rules'] as $propertyAnnotation) {
                 $annotation = explode(' ', $propertyAnnotation);
 
-                $object->validated[$property->name] = $this->_validateProperty($annotation, $propertyValue);
+                $object->validated[$property['name']] = $this->_validateProperty($annotation, $propertyValue);
             }
         }
 
@@ -48,24 +80,29 @@ class Validator
 
     private function _validateProperty(array $annotation, $property): bool
     {
-        if (count($annotation) === 1) {
-            return call_user_func([$this, sprintf('_validate%s', ucfirst($annotation[0]))], $property);
+        if ($annotation[0] === 'var') {
+            return true;
         }
 
-        return true; // TODO check
+        if (count($annotation) === 1) {
+            return $this->{sprintf('_validate%s', ucfirst($annotation[0]))}($property);
+        }
+
+        $args_annotation = array_splice($annotation, 1);
+
+        return $this->{sprintf('_validate%s', ucfirst($annotation[0]))}($property, ...$args_annotation);
     }
 
     /**
+     * @return ReflectionProperty[]
      * @throws ReflectionException
      */
     private function _getClassProperties($class): array
     {
-        $ReflectionClass = new ReflectionClass($class);
-
-        return $ReflectionClass->getProperties();
+        return (new ReflectionClass($class))->getProperties();
     }
 
-    private function _getPropertyAnnotations($property, $className): array
+    private function _getPropertyAnnotations(ReflectionProperty $property): array
     {
         preg_match_all('#@(.*?)\n#s', $property->getDocComment(), $annotations);
 
@@ -85,6 +122,21 @@ class Validator
     private function _validateRequired($value): bool
     {
         return !empty(trim($value));
+    }
+
+    private function _validateRequiredOr($value, $other_values): bool
+    {
+        if (!empty($value)) {
+            return true;
+        }
+
+        foreach ($other_values as $other_value) {
+            if (!empty($this->object->$other_value)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -142,5 +194,37 @@ class Validator
             strtolower($value),
             ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']
         );
+    }
+
+    private function _validateContentMedia($value)
+    {
+        if (is_array($value)) {
+            foreach ($value as $content) {
+                if (!$content->isValid()) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        if ($value instanceof Content) {
+            return $value->isValid();
+        }
+
+        return  false;
+    }
+
+    private function _validateMediaType($value): bool
+    {
+        return true;
+    }
+    private function _validateMediaMedium($value): bool
+    {
+        return in_array($value, ['image', 'audio', 'video', 'document', 'executable']);
+    }
+
+    private function _validateMediaExpression($value): bool
+    {
+        return in_array($value, ['sample', 'full', 'nonstop']);
     }
 }

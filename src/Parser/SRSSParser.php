@@ -1,6 +1,6 @@
 <?php
 
-namespace Shikiryu\SRSS;
+namespace Shikiryu\SRSS\Parser;
 
 use DOMDocument;
 use DOMNodeList;
@@ -8,6 +8,8 @@ use DOMXPath;
 use Shikiryu\SRSS\Entity\Channel;
 use Shikiryu\SRSS\Entity\Channel\Image;
 use Shikiryu\SRSS\Entity\Item;
+use Shikiryu\SRSS\Exception\SRSSException;
+use Shikiryu\SRSS\SRSS;
 
 class SRSSParser extends DomDocument
 {
@@ -38,7 +40,7 @@ class SRSSParser extends DomDocument
      * @param string $link
      *
      * @return \Shikiryu\SRSS\SRSS
-     * @throws \Shikiryu\SRSS\SRSSException
+     * @throws \Shikiryu\SRSS\Exception\SRSSException
      */
     public function parse(string $link)
     {
@@ -59,9 +61,9 @@ class SRSSParser extends DomDocument
 
     /**
      * @return Item[]
-     * @throws \Shikiryu\SRSS\SRSSException
+     * @throws \Shikiryu\SRSS\Exception\SRSSException
      */
-    private function getItems(): mixed
+    private function getItems(): array
     {
         $channel = $this->_getChannel();
         /** @var DOMNodeList $items */
@@ -70,7 +72,7 @@ class SRSSParser extends DomDocument
         $this->doc->items = [];
         if ($length > 0) {
             for($i = 0; $i < $length; $i++) {
-                $this->doc->items[$i] = SRSSItem::read($items->item($i));
+                $this->doc->items[$i] = ItemParser::read($items->item($i));
             }
         }
 

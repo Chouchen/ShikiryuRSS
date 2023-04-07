@@ -5,37 +5,16 @@ namespace Shikiryu\SRSS;
 use Iterator;
 use Shikiryu\SRSS\Entity\Channel;
 use Shikiryu\SRSS\Entity\Item;
+use Shikiryu\SRSS\Exception\SRSSException;
+use Shikiryu\SRSS\Parser\SRSSParser;
 
 class SRSS implements Iterator
 {
     public Channel $channel;
+    /** @var Item[] */
     public array $items; // array of SRSSItems
 
     private int $position; // Iterator position
-
-    // lists of possible attributes for RSS
-    protected $possibleAttr = [
-        'title'          => 'nohtml',
-        'link'           => 'link',
-        'description'    => 'html',
-        'language'       => '',
-        //'language'			=> 'lang',
-        'copyright'      => 'nohtml',
-        'pubDate'        => 'date',
-        'lastBuildDate'  => 'date',
-        'category'       => 'nohtml',
-        'docs'           => 'link',
-        'cloud'          => '',
-        'generator'      => 'nohtml',
-        'managingEditor' => 'email',
-        'webMaster'      => 'email',
-        'ttl'            => 'int',
-        'image'          => '',
-        'rating'         => 'nohtml',
-        //'textInput'			=> '',
-        'skipHours'      => 'hour',
-        'skipDays'       => 'day',
-    ];
 
     /**
      * Constructor
@@ -78,15 +57,10 @@ class SRSS implements Iterator
     public function isValid(): bool
     {
         $valid = true;
-        $items = $this->getItems();
-        $invalidItems = [];
-        $i = 1;
-        foreach ($items as $item) {
+        foreach ($this->getItems() as $item) {
             if ($item->isValid() === false) {
-                $invalidItems[] = $i;
                 $valid = false;
             }
-            $i++;
         }
 
         return ($valid && $this->channel->isValid());
@@ -115,11 +89,10 @@ class SRSS implements Iterator
         if (!property_exists(Channel::class, $name)) {
             throw new SRSSException($name . ' is not a possible item');
         }
-        $flag = $this->possibleAttr[$name];
-        $val = SRSSTools::check($val, $flag);
-        if (!empty($val)) {
+        // TODO add validator ?
+//        if ((new Validator())->isPropertyValid($this->channel, $name)) {
             $this->channel->{$name} = $val;
-        }
+//        }
     }
 
     /**
@@ -230,5 +203,10 @@ class SRSS implements Iterator
         }
 
         return $doc;
+    }
+
+    public function addItem(Item $rssItem)
+    {
+        $this->items[] = $rssItem;
     }
 }
