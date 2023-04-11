@@ -3,15 +3,20 @@
 namespace Shikiryu\SRSS;
 
 use Iterator;
+use ReflectionException;
 use Shikiryu\SRSS\Builder\SRSSBuilder;
 use Shikiryu\SRSS\Entity\Channel;
 use Shikiryu\SRSS\Entity\Item;
+use Shikiryu\SRSS\Exception\ChannelNotFoundInRSSException;
+use Shikiryu\SRSS\Exception\PropertyNotFoundException;
 use Shikiryu\SRSS\Exception\SRSSException;
+use Shikiryu\SRSS\Exception\UnreadableRSSException;
 use Shikiryu\SRSS\Parser\SRSSParser;
 
 class SRSS implements Iterator
 {
     public Channel $channel;
+
     /** @var Item[] */
     public array $items; // array of SRSSItems
 
@@ -30,6 +35,8 @@ class SRSS implements Iterator
      * @param string $link url of the rss
      *
      * @return SRSS
+     * @throws ChannelNotFoundInRSSException
+     * @throws UnreadableRSSException
      * @throws SRSSException
      */
     public static function read(string $link): SRSS
@@ -40,7 +47,7 @@ class SRSS implements Iterator
     /**
      * @return SRSS
      */
-    public static function create()
+    public static function create(): SRSS
     {
         $doc = new SRSS;
 
@@ -65,7 +72,7 @@ class SRSS implements Iterator
             }
 
             return ($valid && $this->channel->isValid());
-        } catch (\ReflectionException $e) {
+        } catch (ReflectionException $e) {
             return false;
         }
     }
@@ -91,7 +98,7 @@ class SRSS implements Iterator
     public function __set($name, $val)
     {
         if (!property_exists(Channel::class, $name)) {
-            throw new SRSSException($name . ' is not a possible item');
+            throw new PropertyNotFoundException(Channel::class, $name);
         }
         // TODO add validator ?
 //        if ((new Validator())->isPropertyValid($this->channel, $name)) {
@@ -210,9 +217,9 @@ class SRSS implements Iterator
     }
 
     /**
-     * @param \Shikiryu\SRSS\Entity\Item $rssItem
+     * @param Item $rssItem
      *
-     * @return array|\Shikiryu\SRSS\Entity\Item[]
+     * @return array|Item[]
      */
     public function addItem(Item $rssItem): array
     {
@@ -222,9 +229,9 @@ class SRSS implements Iterator
     }
 
     /**
-     * @param \Shikiryu\SRSS\Entity\Item $firstItem
+     * @param Item $firstItem
      *
-     * @return array|\Shikiryu\SRSS\Entity\Item[]
+     * @return array|Item[]
      */
     public function addItemBefore(Item $firstItem): array
     {

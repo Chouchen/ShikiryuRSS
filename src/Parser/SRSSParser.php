@@ -9,7 +9,9 @@ use DOMXPath;
 use Shikiryu\SRSS\Entity\Channel;
 use Shikiryu\SRSS\Entity\Channel\Image;
 use Shikiryu\SRSS\Entity\Item;
+use Shikiryu\SRSS\Exception\ChannelNotFoundInRSSException;
 use Shikiryu\SRSS\Exception\SRSSException;
+use Shikiryu\SRSS\Exception\UnreadableRSSException;
 use Shikiryu\SRSS\SRSS;
 
 class SRSSParser extends DomDocument
@@ -41,9 +43,11 @@ class SRSSParser extends DomDocument
      * @param string $link
      *
      * @return SRSS
+     * @throws ChannelNotFoundInRSSException
      * @throws SRSSException
+     * @throws UnreadableRSSException
      */
-    public function parse(string $link)
+    public function parse(string $link): SRSS
     {
         if(@$this->load($link)) { // We don't want the warning in case of bad XML. Let's manage it with an exception.
             $channel = $this->getElementsByTagName('channel');
@@ -54,10 +58,10 @@ class SRSSParser extends DomDocument
                 return $this->doc;
             }
 
-            throw new SRSSException('invalid file '.$link);
+            throw new ChannelNotFoundInRSSException($link);
         }
 
-        throw new SRSSException('Can not open file '.$link);
+        throw new UnreadableRSSException($link);
     }
 
     /**
@@ -116,7 +120,7 @@ class SRSSParser extends DomDocument
     {
         $channel = $this->getElementsByTagName('channel');
         if($channel->length != 1) {
-            throw new SRSSException('channel node not created, or too many channel nodes');
+            throw new ChannelNotFoundInRSSException('channel node not created, or too many channel nodes');
         }
 
         return $channel->item(0);

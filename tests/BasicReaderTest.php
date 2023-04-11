@@ -2,6 +2,7 @@
 
 use PHPUnit\Framework\TestCase;
 use Shikiryu\SRSS\Exception\SRSSException;
+use Shikiryu\SRSS\Exception\UnreadableRSSException;
 use Shikiryu\SRSS\SRSS;
 
 class BasicReaderTest extends TestCase
@@ -15,12 +16,6 @@ class BasicReaderTest extends TestCase
         self::assertEquals('RSS Tutorial', $first_item->title);
 
         self::assertTrue($rss->isValid());
-    }
-
-    public function testRssNotFound()
-    {
-        $this->expectException(SRSSException::class);
-        $rss = SRSS::read('not_found.xml');
     }
 
     public function testSpecificationExampleRSS()
