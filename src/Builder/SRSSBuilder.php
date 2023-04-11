@@ -6,13 +6,12 @@ use DOMDocument;
 use DOMElement;
 use Shikiryu\SRSS\Entity\Channel;
 use Shikiryu\SRSS\Entity\Item;
-use Shikiryu\SRSS\Parser\ItemParser;
 use Shikiryu\SRSS\SRSS;
 use Shikiryu\SRSS\SRSSTools;
 
 class SRSSBuilder extends DomDocument
 {
-    public function build(SRSS $srss, string $filepath)
+    private function buildRSS(SRSS $srss)
     {
         $root = $this->createElement('rss');
         $root->setAttribute('version', '2.0');
@@ -25,53 +24,27 @@ class SRSSBuilder extends DomDocument
         $root->appendChild($channel);
         $this->appendChild($root);
         $this->encoding = 'UTF-8';
-        $this->generator = 'Shikiryu RSS';
+        $srss->generator = 'Shikiryu RSS';
         $this->formatOutput = true;
         $this->preserveWhiteSpace = false;
         // $docs = 'http://www.scriptol.fr/rss/RSS-2.0.html';
+
+        return $this;
+    }
+    public function build(SRSS $srss, string $filepath)
+    {
+        $this->buildRSS($srss);
 
         $this->save($filepath);
     }
 
     /**
-     * add a SRSS Item as an item into current RSS as first item
-     *
-     * @param ItemParser $item
+     * @return false|string
      */
-    public function addItemBefore(ItemParser $item)
+    public function show(SRSS $srss)
     {
-        $node = $this->importNode($item->getItem(), true);
-        $items =  $this->getElementsByTagName('item');
-        if($items->length != 0){
-            $firstNode = $items->item(0);
-            if($firstNode != null)
-                $firstNode->parentNode->insertBefore($node, $firstNode);
-            else
-                $this->addItem($item);
-        }
-        else
-            $this->addItem($item);
-    }
+        $this->buildRSS($srss);
 
-    /**
-     * add a SRSS Item as an item into current RSS
-     *
-     * @param ItemParser $item
-     */
-    public function addItem(ItemParser $item)
-    {
-        $node = $this->importNode($item->getItem(), true);
-        $channel = $this->_getChannel();
-        $channel->appendChild($node);
-    }
-
-    /**
-     * display XML
-     * see DomDocument's docs
-     */
-    public function show()
-    {
-        // TODO build
         return $this->saveXml();
     }
 

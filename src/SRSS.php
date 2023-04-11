@@ -3,6 +3,7 @@
 namespace Shikiryu\SRSS;
 
 use Iterator;
+use Shikiryu\SRSS\Builder\SRSSBuilder;
 use Shikiryu\SRSS\Entity\Channel;
 use Shikiryu\SRSS\Entity\Item;
 use Shikiryu\SRSS\Exception\SRSSException;
@@ -118,7 +119,7 @@ class SRSS implements Iterator
     /**
      * current from Iterator
      */
-    public function current(): mixed
+    public function current(): Item
     {
         return $this->items[$this->position];
     }
@@ -202,11 +203,49 @@ class SRSS implements Iterator
             $doc['items'][] = $item->toArray();
         }
 
-        return $doc;
+        return array_filter($doc);
     }
 
-    public function addItem(Item $rssItem)
+    /**
+     * @param \Shikiryu\SRSS\Entity\Item $rssItem
+     *
+     * @return array|\Shikiryu\SRSS\Entity\Item[]
+     */
+    public function addItem(Item $rssItem): array
     {
         $this->items[] = $rssItem;
+
+        return $this->items;
     }
+
+    /**
+     * @param \Shikiryu\SRSS\Entity\Item $firstItem
+     *
+     * @return array|\Shikiryu\SRSS\Entity\Item[]
+     */
+    public function addItemBefore(Item $firstItem): array
+    {
+        array_unshift($this->items, $firstItem);
+
+        return $this->items;
+    }
+
+    /**
+     * @param string $path
+     *
+     * @return void
+     */
+    public function save(string $path): void
+    {
+        (new SRSSBuilder('1.0', 'UTF-8'))->build($this, $path);
+    }
+
+    /**
+     * @return false|string
+     */
+    public function show()
+    {
+        return (new SRSSBuilder('1.0', 'UTF-8'))->show($this);
+    }
+
 }

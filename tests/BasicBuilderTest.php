@@ -8,6 +8,14 @@ use Shikiryu\SRSS\SRSSTools;
 
 class BasicBuilderTest extends TestCase
 {
+    private string $saved = __DIR__.'/resources/tmp/build/testCreateBasicRSS.rss';
+    protected function tearDown(): void
+    {
+        parent::tearDown();
+        if (file_exists($this->saved)) {
+            unlink($this->saved);
+        }
+    }
     public function testCreateBasicRSS()
     {
         $srss = SRSS::create();
@@ -31,10 +39,11 @@ class BasicBuilderTest extends TestCase
 
         self::assertTrue($srss->isValid());
 
-        $filepath = __DIR__.'/resources/tmp/build/testCreateBasicRSS.rss';
         $builder = new SRSSBuilder();
-        $builder->build($srss, $filepath);
+        $builder->build($srss, $this->saved);
 
-        self::assertFileExists($filepath);
+        self::assertFileExists($this->saved);
+
+        self::assertIsString($srss->show());
     }
 }
