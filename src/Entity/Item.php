@@ -2,6 +2,9 @@
 
 namespace Shikiryu\SRSS\Entity;
 
+use Shikiryu\SRSS\Entity\Item\Category;
+use Shikiryu\SRSS\Entity\Item\Enclosure;
+use Shikiryu\SRSS\Entity\Item\Source;
 use Shikiryu\SRSS\Entity\Media\Content;
 use Shikiryu\SRSS\Validator\HasValidator;
 use Shikiryu\SRSS\Validator\Validator;
@@ -28,27 +31,28 @@ class Item extends HasValidator implements SRSSElement
      * @email
      */
     public ?string $author = null;
-    /*
-     * TODO can be multiple with attributes and all
+    /**
+     * @var Category[]
      */
-    public ?string $category = null;
+    public ?array $category = null;
     /**
      * @url
      */
     public ?string $comments = null;
-    /*
-     * TODO 1 attributes and 1 value
+    /**
+     * @var Enclosure|null
      */
-    public ?string $enclosure = null;
+    public ?Enclosure $enclosure = null;
     public ?string $guid = null;
     /**
      * @date
      */
     public ?string $pubDate = null;
-    /*
-     * TODO 1 attributes and 1 value
+
+    /**
+     * @var Source|null
      */
-    public ?string $source = null;
+    public ?Source $source = null;
 
     /**
      * @var Content[]

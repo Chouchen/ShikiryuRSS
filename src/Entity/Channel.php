@@ -3,6 +3,8 @@
 namespace Shikiryu\SRSS\Entity;
 
 use ReflectionException;
+use Shikiryu\SRSS\Entity\Channel\Category;
+use Shikiryu\SRSS\Entity\Channel\Cloud;
 use Shikiryu\SRSS\Entity\Channel\Image;
 use Shikiryu\SRSS\Validator\HasValidator;
 use Shikiryu\SRSS\Validator\Validator;
@@ -54,9 +56,9 @@ class Channel extends HasValidator implements SRSSElement
      */
     public ?string $lastBuildDate = null;
     /**
-     * TODO should be an array
+     * @var Category[]
      */
-    public ?string $category = null;
+    public ?array $category = null;
     /**
      * @nohtml
      */
@@ -66,10 +68,9 @@ class Channel extends HasValidator implements SRSSElement
      */
     public ?string $docs = null;
     /**
-     * @var string|null
-     * TODO validator
+     * @var Cloud|null
      */
-    public ?string $cloud = null;
+    public ?Cloud $cloud = null;
     /**
      * @int
      */
