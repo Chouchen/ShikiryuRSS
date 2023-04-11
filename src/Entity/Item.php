@@ -2,6 +2,7 @@
 
 namespace Shikiryu\SRSS\Entity;
 
+use Shikiryu\SRSS\Entity\Media\Content;
 use Shikiryu\SRSS\Validator\HasValidator;
 use Shikiryu\SRSS\Validator\Validator;
 
@@ -50,14 +51,18 @@ class Item extends HasValidator implements SRSSElement
     public ?string $source = null;
 
     /**
-     * @var \Shikiryu\SRSS\Entity\Media\Content[]
+     * @var Content[]
      * @contentMedia
      */
     public array $medias = [];
 
     public function isValid(): bool
     {
-        return (new Validator())->isObjectValid($this);
+        try {
+            return (new Validator())->isObjectValid($this);
+        } catch (\ReflectionException $e) {
+            return false;
+        }
     }
 
     public function toArray(): array

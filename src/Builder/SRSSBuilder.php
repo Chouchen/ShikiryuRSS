@@ -17,6 +17,8 @@ class SRSSBuilder extends DomDocument
         $root->setAttribute('version', '2.0');
         $channel = $this->createElement('channel');
 
+        $srss->channel->generator = 'Shikiryu RSS';
+
         $this->appendChannelToDom($srss->channel, $channel);
 
         $this->appendItemsToDom($srss->items, $channel);
@@ -24,7 +26,6 @@ class SRSSBuilder extends DomDocument
         $root->appendChild($channel);
         $this->appendChild($root);
         $this->encoding = 'UTF-8';
-        $srss->generator = 'Shikiryu RSS';
         $this->formatOutput = true;
         $this->preserveWhiteSpace = false;
         // $docs = 'http://www.scriptol.fr/rss/RSS-2.0.html';

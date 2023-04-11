@@ -12,7 +12,7 @@ First, we need to load the RSS :
 
     $rss = SRSS::read('http://exemple.com/rss.xml');
 
-Easy, right? Then you can extract general informations :
+Easy, right? Then you can extract general information :
 
     echo $rss->title; // will display blog title
 
@@ -43,7 +43,7 @@ First, we need to initialize the RSS :
 
     $rss = SRSS::create();
 
-Easy, right? Then you can add general informations :
+Easy, right? Then you can add general information :
 
     $rss->title = 'My Awesome Blog';
     $rss->link = 'http://shikiryu.com/devblog/';
@@ -73,4 +73,4 @@ The other one does the opposite and add the next item in top of your RSS
 ----------------------------------
 
 Contact :
-http://shikiryu.com/contact
+https://shikiryu.com/contact

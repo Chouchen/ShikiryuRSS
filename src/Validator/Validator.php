@@ -2,6 +2,7 @@
 
 namespace Shikiryu\SRSS\Validator;
 
+use DateTime;
 use DateTimeInterface;
 use ReflectionClass;
 use ReflectionException;
@@ -12,7 +13,7 @@ class Validator
 {
     protected ?object $object = null;
     /**
-     * @throws \ReflectionException
+     * @throws ReflectionException
      */
     public function isPropertyValid($object, $property)
     {
@@ -34,6 +35,8 @@ class Validator
 
             $object->validated[$properties->name] = $this->_validateProperty($annotation, $propertyValue);
         }
+
+        return false;
     }
 
     /**
@@ -173,7 +176,7 @@ class Validator
 
     private function _validateDate($value): bool
     {
-        return \DateTime::createFromFormat(DateTimeInterface::RSS, $value) !== false;
+        return DateTime::createFromFormat(DateTimeInterface::RSS, $value) !== false;
     }
 
     private function _validateHour($value): bool

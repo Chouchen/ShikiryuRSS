@@ -3,6 +3,7 @@
 namespace Shikiryu\SRSS\Parser;
 
 use DOMDocument;
+use DOMNode;
 use DOMNodeList;
 use DOMXPath;
 use Shikiryu\SRSS\Entity\Channel;
@@ -39,8 +40,8 @@ class SRSSParser extends DomDocument
     /**
      * @param string $link
      *
-     * @return \Shikiryu\SRSS\SRSS
-     * @throws \Shikiryu\SRSS\Exception\SRSSException
+     * @return SRSS
+     * @throws SRSSException
      */
     public function parse(string $link)
     {
@@ -48,7 +49,7 @@ class SRSSParser extends DomDocument
             $channel = $this->getElementsByTagName('channel');
             if($channel->length === 1){ // Good URL and good RSS
                 $this->_loadAttributes(); // loading channel properties
-                $this->getItems(); // loading all items
+                $this->parseItems(); // loading all items
 
                 return $this->doc;
             }
@@ -61,9 +62,9 @@ class SRSSParser extends DomDocument
 
     /**
      * @return Item[]
-     * @throws \Shikiryu\SRSS\Exception\SRSSException
+     * @throws SRSSException
      */
-    private function getItems(): array
+    private function parseItems(): array
     {
         $channel = $this->_getChannel();
         /** @var DOMNodeList $items */
@@ -108,10 +109,10 @@ class SRSSParser extends DomDocument
 
     /**
      * getter of current RSS channel
-     * @return \DOMNode
+     * @return DOMNode
      * @throws SRSSException
      */
-    private function _getChannel(): \DOMNode
+    private function _getChannel(): DOMNode
     {
         $channel = $this->getElementsByTagName('channel');
         if($channel->length != 1) {

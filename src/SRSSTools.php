@@ -2,6 +2,7 @@
 
 namespace Shikiryu\SRSS;
 
+use DateTime;
 use DateTimeInterface;
 
 class SRSSTools
@@ -62,7 +63,7 @@ class SRSSTools
         }
 
         if (count(explode(' ', $date)) === 2) {
-            return \DateTime::createFromFormat('Y-m-d H:i:s', $date)->format(DateTimeInterface::RSS);
+            return DateTime::createFromFormat('Y-m-d H:i:s', $date)->format(DateTimeInterface::RSS);
         }
 
         [$j, $m, $a] = explode('/', $date);

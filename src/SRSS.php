@@ -39,7 +39,6 @@ class SRSS implements Iterator
 
     /**
      * @return SRSS
-     * @throws \DOMException
      */
     public static function create()
     {
@@ -57,14 +56,18 @@ class SRSS implements Iterator
      */
     public function isValid(): bool
     {
-        $valid = true;
-        foreach ($this->getItems() as $item) {
-            if ($item->isValid() === false) {
-                $valid = false;
+        try {
+            $valid = true;
+            foreach ($this->getItems() as $item) {
+                if ($item->isValid() === false) {
+                    $valid = false;
+                }
             }
-        }
 
-        return ($valid && $this->channel->isValid());
+            return ($valid && $this->channel->isValid());
+        } catch (\ReflectionException $e) {
+            return false;
+        }
     }
 
     /**

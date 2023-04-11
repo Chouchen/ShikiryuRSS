@@ -67,7 +67,11 @@ class Content extends HasValidator implements SRSSElement
 
     public function isValid(): bool
     {
-        return (new Validator())->isObjectValid($this);
+        try {
+            return (new Validator())->isObjectValid($this);
+        } catch (\ReflectionException $e) {
+            return false;
+        }
     }
 
     public function toArray(): array

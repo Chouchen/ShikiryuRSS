@@ -84,7 +84,7 @@ class ItemParser extends DomDocument
     /**
      * getter of item DomElement
      */
-    public function getItem(): ?\DOMNode
+    public function getItem(): ?DOMNode
     {
         $this->appendChild($this->node);
 
