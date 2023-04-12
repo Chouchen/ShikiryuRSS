@@ -7,7 +7,7 @@ use DateTimeInterface;
 
 class SRSSTools
 {
-    /*public static function check($check, $flag)
+    public static function check($check, $flag)
     {
         return match ($flag) {
             'nohtml' => self::noHTML($check),
@@ -18,13 +18,12 @@ class SRSSTools
             'int' => self::checkInt($check),
             'hour' => self::checkHour($check),
             'day' => self::checkDay($check),
-            'folder' => [],
             'media_type' => self::checkMediaType($check),
             'media_medium' => self::checkMediaMedium($check),
             'bool' => self::checkBool($check),
             'medium_expression' => self::checkMediumExpression($check)
         };
-    }*/
+    }
 
     /**
      * format the RSS to the wanted format
@@ -90,11 +89,10 @@ class SRSSTools
      * @param $check string to format
      *
      * @return string formatted string
-     * TODO CDATA ?
      */
     public static function HTML4XML(string $check): string
     {
-        return htmlspecialchars($check);
+        return sprintf('<![CDATA[ %s ]]>', htmlspecialchars($check));
     }
 
     /**

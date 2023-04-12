@@ -3,12 +3,8 @@
 namespace Shikiryu\SRSS\Parser;
 
 use DOMDocument;
-use DOMElement;
-use DOMException;
 use DOMNode;
 use Shikiryu\SRSS\Entity\Item;
-use Shikiryu\SRSS\Exception\SRSSException;
-use Shikiryu\SRSS\SRSSTools;
 
 /**
  * @property string|null $description
@@ -17,17 +13,6 @@ class ItemParser extends DomDocument
 {
 
     protected DOMNode $node; // item node
-    protected $attr; // item's properties
-
-    /**
-     * Constructor
-     *
-     * @param DomNode $node
-     */
-    public function __construct($node = null)
-    {
-        parent::__construct();
-    }
 
     /**
      * @param Item $item
@@ -83,104 +68,5 @@ class ItemParser extends DomDocument
         }
 
         return $item;
-    }
-
-    /**
-     * getter of item DomElement
-     */
-    public function getItem(): ?DOMNode
-    {
-        $this->appendChild($this->node);
-
-        return $this->getElementsByTagName('item')->item(0);
-    }
-
-    /**
-     * check if current item is valid (following specifications)
-     * @return bool
-     */
-    public function isValid(): bool
-    {
-        return $this->description != null;
-    }
-
-    /**
-     * @param $name
-     *
-     * @return bool
-     */
-    public function __isset($name)
-    {
-        return isset($this->attr[$name]);
-    }
-
-    /**
-     * main setter for properties
-     *
-     * @param $name
-     * @param $val
-     *
-     * @throws SRSSException|DOMException
-     */
-    public function __set($name, $val)
-    {
-        if (!array_key_exists($name, $this->possibilities)) {
-            throw new SRSSException(sprintf('%s is not a possible item (%s)', $name, implode(', ', array_keys($this->possibilities))));
-        }
-
-        $flag = $this->possibilities[$name];
-        if ($flag !== '') {
-            $val = SRSSTools::check($val, $flag);
-        }
-        if (!empty($val)) {
-            if ($val instanceof DOMElement) {
-                $this->node->appendChild($val);
-            } elseif ($this->$name === null) {
-                $this->node->appendChild(new DomElement($name, $val));
-            }
-            $this->attr[$name] = $val;
-        }
-    }
-
-    /**
-     * main getter for properties
-     *
-     * @param $name
-     *
-     * @return null|string
-     * @throws SRSSException
-     */
-    public function __get($name)
-    {
-        if (isset($this->attr[$name])) {
-            return $this->attr[$name];
-        }
-
-        if (array_key_exists($name, $this->possibilities)) {
-
-            $tmp = $this->node->getElementsByTagName($name);
-
-            if ($tmp->length !== 1) {
-                return null;
-            }
-
-            return $tmp->item(0)->nodeValue;
-        }
-
-        throw new SRSSException(sprintf('%s is not a possible item (%s)', $name, implode(', ', array_keys($this->possibilities))));
-    }
-
-    /**
-     * transform current item's object into an array
-     * @return array
-     */
-    public function toArray(): array
-    {
-        $infos = [];
-        foreach ($this->attr as $attrName => $attrVal) {
-            $infos[$attrName] = $attrVal;
-        }
-
-        return $infos;
     }
 }

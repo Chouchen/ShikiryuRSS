@@ -18,10 +18,13 @@ class BasicBuilderTest extends TestCase
     }
     public function testCreateBasicRSS(): void
     {
+        $title = 'My Blog';
+        $description = 'is the best';
+        $link = 'http://shikiryu.com/devblog/';
         $srss = SRSS::create();
-        $srss->title = 'My Blog';
-        $srss->description = 'is the best';
-        $srss->link = 'http://shikiryu.com/devblog/';
+        $srss->title = $title;
+        $srss->description = $description;
+        $srss->link = $link;
         $items = [
             ['title' => 'title 1', 'link' => 'http://shikiryu.com/devblog/article-1', 'pubDate' => SRSSTools::getRSSDate('2012-03-05 12:02:01'), 'description' => 'description 1'],
             ['title' => 'title 2', 'link' => 'http://shikiryu.com/devblog/article-2', 'pubDate' => SRSSTools::getRSSDate('2022-03-05 22:02:02'), 'description' => 'description 2'],
@@ -38,6 +41,10 @@ class BasicBuilderTest extends TestCase
         }
 
         self::assertTrue($srss->isValid());
+
+        self::assertEquals($title, $srss->title);
+        self::assertEquals($description, $srss->description);
+        self::assertEquals($link, $srss->link);
 
         $builder = new SRSSBuilder();
         $builder->build($srss, $this->saved);

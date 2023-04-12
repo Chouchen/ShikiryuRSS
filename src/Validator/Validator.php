@@ -12,31 +12,74 @@ use Shikiryu\SRSS\Entity\Media\Content;
 class Validator
 {
     protected ?object $object = null;
+
+
     /**
+     * @param $object
+     * @param $property
+     * @return ReflectionProperty|null
      * @throws ReflectionException
      */
-    public function isPropertyValid($object, $property): bool
+    private function getReflectedProperty($object, $property): ?ReflectionProperty
     {
-        $properties = array_filter($this->_getClassProperties(get_class($object)), static fn($p) => $p->getName() === $property);
+        $properties = array_filter(
+            $this->_getClassProperties(get_class($object)),
+            static fn($p) => $p->getName() === $property
+        );
+
         if (count($properties) !== 1) {
-            return false;
+            return null;
         }
 
-        $properties = current($properties);
-        $propertyValue = $object->{$properties->name};
-        $propertyAnnotations = $this->_getPropertyAnnotations($properties);
+        return current($properties);
+    }
 
-        if (empty($propertyValue) && !in_array('required', $propertyAnnotations, true)) {
+    /**
+     * @param $object
+     * @param $property
+     * @param $value
+     * @return bool
+     */
+    public function isValidValueForObjectProperty($object, $property, $value): bool
+    {
+        try {
+            $property = $this->getReflectedProperty($object, $property);
+        } catch (ReflectionException) {
+            return false;
+        }
+        $propertyAnnotations = $this->_getPropertyAnnotations($property);
+
+        if (empty($value) && !in_array('required', $propertyAnnotations, true)) {
             return true;
         }
 
         foreach ($propertyAnnotations as $propertyAnnotation) {
             $annotation = explode(' ', $propertyAnnotation);
 
-            $object->validated[$properties->name] = $this->_validateProperty($annotation, $propertyValue);
+            $object->validated[$property->name] = $this->_validateProperty($annotation, $value);
         }
 
-        return false;
+        return count(array_filter($object->validated, static fn($v) => ($v !== null && $v === false))) === 0;
+    }
+
+    /**
+     * @param $object
+     * @param $property
+     * @return bool
+     * @throws ReflectionException
+     */
+    private function objectHasProperty($object, $property): bool
+    {
+        return $this->getReflectedProperty($object, $property) instanceof ReflectionProperty;
+    }
+
+    /**
+     * @throws ReflectionException
+     */
+    public function isPropertyValid($object, $property): bool
+    {
+        return $this->objectHasProperty($object, $property) &&
+            $this->isValidValueForObjectProperty($object, $property, $object->{$property});
     }
 
     /**
@@ -65,7 +108,6 @@ class Validator
 
         foreach ($properties as $property) {
             $propertyValue = $object->{$property['name']};
-//            $propertyAnnotations = $this->_getPropertyAnnotations($property, get_class($object));
 
             if (empty($propertyValue) && !in_array('required', $property['rules'], true)) {
                 continue;

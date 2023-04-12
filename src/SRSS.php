@@ -15,6 +15,7 @@ use Shikiryu\SRSS\Exception\PropertyNotFoundException;
 use Shikiryu\SRSS\Exception\SRSSException;
 use Shikiryu\SRSS\Exception\UnreadableRSSException;
 use Shikiryu\SRSS\Parser\SRSSParser;
+use Shikiryu\SRSS\Validator\Validator;
 
 /**
  * @property null|string $title
@@ -124,10 +125,9 @@ class SRSS implements Iterator
         if (!property_exists(Channel::class, $name)) {
             throw new PropertyNotFoundException(Channel::class, $name);
         }
-        // TODO add validator ?
-//        if ((new Validator())->isPropertyValid($this->channel, $name)) {
+        if ((new Validator())->isValidValueForObjectProperty($this->channel, $name, $val)) {
             $this->channel->{$name} = $val;
-//        }
+        }
     }
 
     /**
