@@ -11,17 +11,17 @@ class Enclosure extends HasValidator implements SRSSElement
     /**
      * @url
      */
-    public string $url;
+    public ?string $url = null;
 
     /**
      * @int
      */
-    public int $length;
+    public ?int $length = null;
 
     /**
      * @mediaType
      */
-    public string $type;
+    public ?string $type = null;
 
     public function isValid(): bool
     {

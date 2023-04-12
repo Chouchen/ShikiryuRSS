@@ -19,22 +19,6 @@ class ItemParser extends DomDocument
     protected DOMNode $node; // item node
     protected $attr; // item's properties
 
-    // possible properties' names
-    protected static $possibilities = [
-        'title'         => 'nohtml',
-        'link'          => 'link',
-        'description'   => 'html',
-        'author'        => 'email',
-        'category'      => 'nohtml',
-        'comments'      => 'link',
-        'enclosure'     => '',
-        'guid'          => 'nohtml',
-        'pubDate'       => 'date',
-        'source'        => 'link',
-        'media:group'   => 'folder',
-        'media:content' => '',
-    ];
-
     /**
      * Constructor
      *
@@ -55,10 +39,30 @@ class ItemParser extends DomDocument
     {
         foreach ($nodes->childNodes as $child) {
             if ($child->nodeType === XML_ELEMENT_NODE && $child->nodeName !== 'item') {
-                if (array_key_exists($child->nodeName, self::$possibilities) && self::$possibilities[$child->nodeName] === 'folder') {
+                if ($child->nodeName === 'media:group') {
                     self::_loadChildAttributes($item, $child);
                 } elseif  ($child->nodeName === 'media:content') {
                     $item->medias[] = MediaContentParser::read($child);
+                }  elseif  ($child->nodeName === 'category') {
+                    $category = new Item\Category();
+                    foreach($child->attributes as $attribute) {
+                        $category->{$attribute->name} = $attribute->value;
+                    }
+                    $category->value = $child->nodeValue;
+                    $item->category[] = $category;
+                }  elseif  ($child->nodeName === 'enclosure') {
+                    $enclosure = new Item\Enclosure();
+                    foreach($child->attributes as $attribute) {
+                        $enclosure->{$attribute->name} = $attribute->value;
+                    }
+                    $item->enclosure = $enclosure;
+                }  elseif  ($child->nodeName === 'source') {
+                    $source = new Item\Source();
+                    foreach($child->attributes as $attribute) {
+                        $source->{$attribute->name} = $attribute->value;
+                    }
+                    $source->value = $child->nodeValue;
+                    $item->source = $source;
                 } else {
                     $item->{$child->nodeName} = trim($child->nodeValue);
                 }

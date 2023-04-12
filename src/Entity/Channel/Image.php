@@ -12,17 +12,17 @@ class Image extends HasValidator implements SRSSElement
      * @required
      * @url
      */
-    public string $url;
+    public ?string $url = null;
     /**
      * @required
      * @nohtml
      */
-    public string $title;
+    public ?string $title = null;
     /**
      * @required
      * @url
      */
-    public string $link;
+    public ?string $link = null;
     /**
      * @int
      * @max 144

@@ -49,11 +49,11 @@ class SRSSParser extends DomDocument
      */
     public function parse(string $link): SRSS
     {
-        if(@$this->load($link)) { // We don't want the warning in case of bad XML. Let's manage it with an exception.
+        if (@$this->load($link)) { // We don't want the warning in case of bad XML. Let's manage it with an exception.
             $channel = $this->getElementsByTagName('channel');
             if($channel->length === 1){ // Good URL and good RSS
-                $this->_loadAttributes(); // loading channel properties
-                $this->parseItems(); // loading all items
+                $this->_parseChannel(); // loading channel properties
+                $this->_parseItems(); // loading all items
 
                 return $this->doc;
             }
@@ -68,7 +68,7 @@ class SRSSParser extends DomDocument
      * @return Item[]
      * @throws SRSSException
      */
-    private function parseItems(): array
+    private function _parseItems(): array
     {
         $channel = $this->_getChannel();
         /** @var DOMNodeList $items */
@@ -87,7 +87,7 @@ class SRSSParser extends DomDocument
      * putting all RSS attributes into the object
      * @throws SRSSException
      */
-    private function _loadAttributes(): void
+    private function _parseChannel(): void
     {
         $node_channel = $this->_getChannel();
         $this->doc->channel = new Channel();
@@ -97,12 +97,25 @@ class SRSSParser extends DomDocument
                 if($child->nodeName === 'image') {
                     $image = new Image();
                     foreach($child->childNodes as $children) {
-                        if($children->nodeType == XML_ELEMENT_NODE) {
-                            $image->{$child->nodeName} = $children->nodeValue;
+                        if($children->nodeType === XML_ELEMENT_NODE) {
+                            $image->{$children->nodeName} = $children->nodeValue;
                         }
                     }
                     $this->doc->channel->image = $image;
 
+                } elseif($child->nodeName === 'cloud') {
+                    $cloud = new Channel\Cloud();
+                    foreach($child->attributes as $attribute) {
+                        $cloud->{$attribute->name} = $attribute->value;
+                    }
+                    $this->doc->channel->cloud = $cloud;
+                }  elseif($child->nodeName === 'category') {
+                    $category = new Channel\Category();
+                    foreach($child->attributes as $attribute) {
+                        $category->{$attribute->name} = $attribute->value;
+                    }
+                    $category->value = $child->nodeValue;
+                    $this->doc->channel->category[] = $category;
                 } else {
                     $this->doc->channel->{$child->nodeName} = $child->nodeValue;
                 }

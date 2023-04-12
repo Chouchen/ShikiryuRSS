@@ -11,11 +11,11 @@ class Category extends HasValidator implements SRSSElement
     /**
      * @string
      */
-    public string $domain;
+    public ?string $domain = null;
     /**
      * @string
      */
-    public string $value;
+    public ?string $value = null;
 
     public function isValid(): bool
     {

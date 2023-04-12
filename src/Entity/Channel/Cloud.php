@@ -11,23 +11,23 @@ class Cloud extends HasValidator implements SRSSElement
     /**
      * @string
      */
-    public string $domain;
+    public ?string $domain = null;
     /**
      * @int
      */
-    public int $port;
+    public ?int $port = null;
     /**
      * @string
      */
-    public string $path;
+    public ?string $path = null;
     /**
      * @string
      */
-    public string $registerProcedure;
+    public ?string $registerProcedure = null;
     /**
      * @string
      */
-    public string $protocol;
+    public ?string $protocol = null;
 
  //<cloud domain="rpc.sys.com" port="80" path="/RPC2" registerProcedure="myCloud.rssPleaseNotify" protocol="xml-rpc" />
 

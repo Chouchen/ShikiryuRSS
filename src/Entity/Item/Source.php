@@ -11,12 +11,12 @@ class Source extends HasValidator implements SRSSElement
     /**
      * @url
      */
-    public string $url;
+    public ?string $url = null;
 
     /**
      * @nohtml
      */
-    public string $source;
+    public ?string $value = null;
 
     public function isValid(): bool
     {
