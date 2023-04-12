@@ -6,6 +6,9 @@ use Iterator;
 use ReflectionException;
 use Shikiryu\SRSS\Builder\SRSSBuilder;
 use Shikiryu\SRSS\Entity\Channel;
+use Shikiryu\SRSS\Entity\Channel\Category;
+use Shikiryu\SRSS\Entity\Channel\Cloud;
+use Shikiryu\SRSS\Entity\Channel\Image;
 use Shikiryu\SRSS\Entity\Item;
 use Shikiryu\SRSS\Exception\ChannelNotFoundInRSSException;
 use Shikiryu\SRSS\Exception\PropertyNotFoundException;
@@ -13,6 +16,27 @@ use Shikiryu\SRSS\Exception\SRSSException;
 use Shikiryu\SRSS\Exception\UnreadableRSSException;
 use Shikiryu\SRSS\Parser\SRSSParser;
 
+/**
+ * @property null|string $title
+ * @property null|string $link
+ * @property null|string $description
+ * @property null|string $language
+ * @property null|string $copyright
+ * @property null|string $managingEditor
+ * @property null|string $webMaster
+ * @property null|string $pubDate
+ * @property null|string $lastBuildDate
+ * @property null|Category[] $category
+ * @property null|string $generator
+ * @property null|string $docs
+ * @property null|Cloud $cloud
+ * @property null|string $ttl
+ * @property null|Image $image
+ * @property null|string $rating
+ * @property null|string $textInput
+ * @property null|string $skipHours
+ * @property null|string $skipDays
+ */
 class SRSS implements Iterator
 {
     public Channel $channel;
@@ -72,7 +96,7 @@ class SRSS implements Iterator
             }
 
             return ($valid && $this->channel->isValid());
-        } catch (ReflectionException $e) {
+        } catch (ReflectionException) {
             return false;
         }
     }
@@ -244,6 +268,7 @@ class SRSS implements Iterator
      * @param string $path
      *
      * @return void
+     * @throws \Shikiryu\SRSS\Exception\DOMBuilderException
      */
     public function save(string $path): void
     {
@@ -252,8 +277,9 @@ class SRSS implements Iterator
 
     /**
      * @return false|string
+     * @throws \Shikiryu\SRSS\Exception\DOMBuilderException
      */
-    public function show()
+    public function show(): bool|string
     {
         return (new SRSSBuilder('1.0', 'UTF-8'))->show($this);
     }

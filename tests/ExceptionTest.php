@@ -8,22 +8,22 @@ use Shikiryu\SRSS\SRSS;
 
 class ExceptionTest extends TestCase
 {
-    public function testPropertyNotFound()
+    public function testPropertyNotFound(): void
     {
         $srss = new SRSS();
         $this->expectException(PropertyNotFoundException::class);
         $srss->notfound = 'true';
     }
 
-    public function testRssNotFound()
+    public function testRssNotFound(): void
     {
         $this->expectException(UnreadableRSSException::class);
-        $rss = SRSS::read('not_found.xml');
+        SRSS::read('not_found.xml');
     }
 
-    public function testMissingChannel()
+    public function testMissingChannel(): void
     {
         $this->expectException(ChannelNotFoundInRSSException::class);
-        $rss = SRSS::read(__DIR__ . '/resources/invalid-no-channel.xml');
+        SRSS::read(__DIR__ . '/resources/invalid-no-channel.xml');
     }
 }

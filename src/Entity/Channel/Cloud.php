@@ -2,6 +2,7 @@
 
 namespace Shikiryu\SRSS\Entity\Channel;
 
+use ReflectionException;
 use Shikiryu\SRSS\Entity\SRSSElement;
 use Shikiryu\SRSS\Validator\HasValidator;
 use Shikiryu\SRSS\Validator\Validator;
@@ -29,13 +30,11 @@ class Cloud extends HasValidator implements SRSSElement
      */
     public ?string $protocol = null;
 
- //<cloud domain="rpc.sys.com" port="80" path="/RPC2" registerProcedure="myCloud.rssPleaseNotify" protocol="xml-rpc" />
-
     public function isValid(): bool
     {
         try {
             return (new Validator())->isObjectValid($this);
-        } catch (\ReflectionException $e) {
+        } catch (ReflectionException) {
             return false;
         }
     }

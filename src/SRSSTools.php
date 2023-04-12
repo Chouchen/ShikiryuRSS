@@ -28,37 +28,38 @@ class SRSSTools
 
     /**
      * format the RSS to the wanted format
+     *
      * @param $format string wanted format
-     * @param $date string RSS date
+     * @param $date   string RSS date
+     *
      * @return string date
      */
-    public static function formatDate($format, $date)
+    public static function formatDate(string $format, string $date): string
     {
         return date($format, strtotime($date));
     }
 
     /**
      * format a date for RSS format
+     *
      * @param string $date date to format
      * @param string $format
+     *
      * @return string
      */
-    public static function getRSSDate($date, $format='')
+    public static function getRSSDate(string $date, string $format = ''): string
     {
-        $datepos = 'dDjlNSwzWFmMntLoYyaABgGhHisueIOPTZcrU';
-        if($format != '' && preg_match('~^(['.$datepos.']{1})(-|/)(['.$datepos.']{1})(-|/)(['.$datepos.']{1})$~', $format, $match)){
-            $sep = $match[2];
-            $format = '%'.$match[1].$sep.'%'.$match[3].$sep.'%'.$match[5];
-            if($dateArray = strptime($date, $format)){
-                $mois = (int)$dateArray['tm_mon'] + 1;
-                $annee = strlen($dateArray['tm_year']) > 2 ? '20'.substr($dateArray['tm_year'], -2) : '19'.$dateArray['tm_year'];
-                $date = $annee.'-'.$mois.'-'.$dateArray['tm_mday'];
-                return date("D, d M Y H:i:s T", strtotime($date));
+        $date_position = 'dDjlNSwzWFmMntLoYyaABgGhHisueIOPTZcrU';
+        if($format !== '' && preg_match('~^(['.$date_position.']{1})([-/])(['.$date_position.']{1})([-/])(['.$date_position.']{1})$~', $format)){
+            $datetime = DateTime::createFromFormat($format, $date);
+            if ($datetime === false) {
+                return '';
             }
-            return '';
+
+            return $datetime->format(DATE_RSS);
         }
 
-        if(strtotime($date) !==false ){
+        if (strtotime($date) !==false ) {
             return date("D, d M Y H:i:s T", strtotime($date));
         }
 
@@ -73,41 +74,49 @@ class SRSSTools
 
     /**
      * check if it's an url
+     *
      * @param $check string to check
+     *
      * @return string|boolean the filtered data, or FALSE if the filter fails.
      */
-    public static function checkLink($check)
+    public static function checkLink(string $check): bool|string
     {
         return filter_var($check, FILTER_VALIDATE_URL);
     }
 
     /**
      * make a string XML-compatible
+     *
      * @param $check string to format
+     *
      * @return string formatted string
      * TODO CDATA ?
      */
-    public static function HTML4XML($check)
+    public static function HTML4XML(string $check): string
     {
         return htmlspecialchars($check);
     }
 
     /**
      * delete html tags
+     *
      * @param $check string to format
+     *
      * @return string formatted string
      */
-    public static function noHTML($check)
+    public static function noHTML(string $check): string
     {
         return strip_tags($check);
     }
 
     /**
      * check if it's a day (in RSS terms)
+     *
      * @param $check string to check
+     *
      * @return string the day, or empty string
      */
-    public static function checkDay($check)
+    public static function checkDay(string $check): string
     {
         $possibleDay = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
         return in_array(strtolower($check), $possibleDay) ? $check : '';
@@ -115,20 +124,24 @@ class SRSSTools
 
     /**
      * check if it's an email
+     *
      * @param $check string to check
+     *
      * @return string|boolean the filtered data, or FALSE if the filter fails.
      */
-    public static function checkEmail($check)
+    public static function checkEmail(string $check): bool|string
     {
         return filter_var($check, FILTER_VALIDATE_EMAIL);
     }
 
     /**
      * check if it's an hour (in RSS terms)
+     *
      * @param $check string to check
+     *
      * @return string|boolean the filtered data, or FALSE if the filter fails.
      */
-    public static function checkHour($check)
+    public static function checkHour(string $check): bool|string
     {
         $options = [
             'options' => [
@@ -142,10 +155,12 @@ class SRSSTools
 
     /**
      * check if it's an int
+     *
      * @param $check int to check
+     *
      * @return int|boolean the filtered data, or FALSE if the filter fails.
      */
-    public static function checkInt($check)
+    public static function checkInt(int $check): bool|int
     {
         return filter_var($check, FILTER_VALIDATE_INT);
     }
@@ -155,7 +170,7 @@ class SRSSTools
      *
      * @return mixed
      */
-    private static function checkMediaType($check)
+    public static function checkMediaType($check): mixed
     {
         return $check;
     }
@@ -165,7 +180,7 @@ class SRSSTools
      *
      * @return mixed|null
      */
-    private static function checkMediaMedium($check)
+    public static function checkMediaMedium($check): ?string
     {
         return in_array($check, ['image', 'audio', 'video', 'document', 'executable']) ? $check : null;
     }
@@ -175,7 +190,7 @@ class SRSSTools
      *
      * @return mixed|null
      */
-    private static function checkBool($check)
+    public static function checkBool($check): ?string
     {
         return in_array($check, ['true', 'false']) ? $check : null;
     }
@@ -185,7 +200,7 @@ class SRSSTools
      *
      * @return mixed|null
      */
-    private static function checkMediumExpression($check)
+    public static function checkMediumExpression($check): ?string
     {
         return in_array($check, ['sample', 'full', 'nonstop']) ? $check : null;
     }

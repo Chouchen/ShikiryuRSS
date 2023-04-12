@@ -16,7 +16,7 @@ class OriginalReaderSRSSTest extends TestCase
         }
     }
 
-    public function testOriginalReader()
+    public function testOriginalReader(): void
     {
         $rss = SRSS::read($this->original);
         self::assertEquals('Liftoff News', $rss->title);

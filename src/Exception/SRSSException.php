@@ -11,7 +11,10 @@ class SRSSException extends Exception
         parent :: __construct($msg);
     }
 
-    public function getError()
+    /**
+     * @return string
+     */
+    public function getError(): string
     {
         return 'Une exception a été générée : <strong>Message : ' . $this->getMessage() . '</strong> à la ligne : ' . $this->getLine();
     }

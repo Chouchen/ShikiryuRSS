@@ -16,7 +16,7 @@ class BasicBuilderTest extends TestCase
             unlink($this->saved);
         }
     }
-    public function testCreateBasicRSS()
+    public function testCreateBasicRSS(): void
     {
         $srss = SRSS::create();
         $srss->title = 'My Blog';

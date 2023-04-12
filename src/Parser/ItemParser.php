@@ -96,33 +96,6 @@ class ItemParser extends DomDocument
     }
 
     /**
-     * setter for enclosure's properties
-     *
-     * @param $url    string url
-     * @param $length int length
-     * @param $type   string type
-     * @throws DOMException
-     */
-    public function setEnclosure(string $url, int $length, string $type): void
-    {
-        $array = [];
-        $url = SRSSTools::checkLink($url);
-        $array['url'] = $url;
-        $length = SRSSTools::checkInt($length);
-        $array['length'] = $length;
-        $type = SRSSTools::noHTML($type);
-        $array['type'] = $type;
-        if ($this->enclosure == null) {
-            $node = $this->createElement('enclosure');
-            $node->setAttribute('url', $url);
-            $node->setAttribute('length', $length);
-            $node->setAttribute('type', $type);
-            $this->node->appendChild($node);
-        }
-        $this->attr['enclosure'] = $array;
-    }
-
-    /**
      * check if current item is valid (following specifications)
      * @return bool
      */
@@ -156,12 +129,13 @@ class ItemParser extends DomDocument
         }
 
         $flag = $this->possibilities[$name];
-        if ($flag !== '')
+        if ($flag !== '') {
             $val = SRSSTools::check($val, $flag);
+        }
         if (!empty($val)) {
             if ($val instanceof DOMElement) {
                 $this->node->appendChild($val);
-            } elseif ($this->$name == null) {
+            } elseif ($this->$name === null) {
                 $this->node->appendChild(new DomElement($name, $val));
             }
             $this->attr[$name] = $val;
@@ -178,11 +152,17 @@ class ItemParser extends DomDocument
      */
     public function __get($name)
     {
-        if (isset($this->attr[$name]))
+        if (isset($this->attr[$name])) {
             return $this->attr[$name];
+        }
+
         if (array_key_exists($name, $this->possibilities)) {
+
             $tmp = $this->node->getElementsByTagName($name);
-            if ($tmp->length != 1) return null;
+
+            if ($tmp->length !== 1) {
+                return null;
+            }
 
             return $tmp->item(0)->nodeValue;
         }
@@ -194,7 +174,7 @@ class ItemParser extends DomDocument
      * transform current item's object into an array
      * @return array
      */
-    public function toArray()
+    public function toArray(): array
     {
         $infos = [];
         foreach ($this->attr as $attrName => $attrVal) {

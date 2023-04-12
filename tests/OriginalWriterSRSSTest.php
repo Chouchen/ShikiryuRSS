@@ -7,7 +7,7 @@ use Shikiryu\SRSS\SRSSTools;
 
 class OriginalWriterSRSSTest extends TestCase
 {
-    public function testOriginalWriter()
+    public function testOriginalWriter(): void
     {
         $rss = SRSS::create();
         $rss->title = 'My Awesome Blog';
@@ -22,12 +22,12 @@ class OriginalWriterSRSSTest extends TestCase
         ];
 
         foreach($items as $item){
-            $rssitem = new Item();
-            $rssitem->title = $item["title"];
-            $rssitem->link = $item['link'];
-            $rssitem->pubDate = $item["pubDate"];
-            $rssitem->description =  $item["description"];
-            $rss->addItem($rssitem);
+            $rss_item = new Item();
+            $rss_item->title = $item["title"];
+            $rss_item->link = $item['link'];
+            $rss_item->pubDate = $item["pubDate"];
+            $rss_item->description =  $item["description"];
+            $rss->addItem($rss_item);
         }
 
         $firstItem = new Item();

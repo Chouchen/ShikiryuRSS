@@ -5,10 +5,8 @@ namespace Shikiryu\SRSS\Parser;
 use DOMDocument;
 use DOMNode;
 use DOMNodeList;
-use DOMXPath;
 use Shikiryu\SRSS\Entity\Channel;
 use Shikiryu\SRSS\Entity\Channel\Image;
-use Shikiryu\SRSS\Entity\Item;
 use Shikiryu\SRSS\Exception\ChannelNotFoundInRSSException;
 use Shikiryu\SRSS\Exception\SRSSException;
 use Shikiryu\SRSS\Exception\UnreadableRSSException;
@@ -17,13 +15,11 @@ use Shikiryu\SRSS\SRSS;
 class SRSSParser extends DomDocument
 {
     private SRSS $doc;
-    private DOMXPath $xpath;
 
     public function __construct()
     {
         libxml_use_internal_errors(true);
         parent::__construct();
-        $this->xpath = new DOMXpath($this);
         $this->doc = new SRSS();
     }
 
@@ -65,10 +61,9 @@ class SRSSParser extends DomDocument
     }
 
     /**
-     * @return Item[]
      * @throws SRSSException
      */
-    private function _parseItems(): array
+    private function _parseItems(): void
     {
         $channel = $this->_getChannel();
         /** @var DOMNodeList $items */
@@ -80,9 +75,8 @@ class SRSSParser extends DomDocument
                 $this->doc->items[$i] = ItemParser::read($items->item($i));
             }
         }
-
-        return $this->doc->items;
     }
+
     /**
      * putting all RSS attributes into the object
      * @throws SRSSException
@@ -132,36 +126,10 @@ class SRSSParser extends DomDocument
     private function _getChannel(): DOMNode
     {
         $channel = $this->getElementsByTagName('channel');
-        if($channel->length != 1) {
+        if($channel->length !== 1) {
             throw new ChannelNotFoundInRSSException('channel node not created, or too many channel nodes');
         }
 
         return $channel->item(0);
-    }
-
-    /**
-     * getter of "image"'s channel attributes
-     * @return string|array
-     * TODO
-     */
-    public function image()
-    {
-        $args = func_get_args();
-        if (func_num_args() == 0) {
-            $args[0] = 'url';
-        }
-        $img = $this->xpath->query('//channel/image');
-        if ($img->length != 1) { // <image> is not in channel
-            return null;
-        }
-        $img = $img->item(0);
-        $r = [];
-        foreach ($img->childNodes as $child) {
-            if ($child->nodeType == XML_ELEMENT_NODE && in_array($child->nodeName, $args)) {
-                $r[$child->nodeName] = $child->nodeValue;
-            }
-        }
-
-        return (func_num_args() > 1) ? $r : $r[$args[0]];
     }
 }

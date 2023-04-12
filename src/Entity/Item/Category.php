@@ -2,6 +2,7 @@
 
 namespace Shikiryu\SRSS\Entity\Item;
 
+use ReflectionException;
 use Shikiryu\SRSS\Entity\SRSSElement;
 use Shikiryu\SRSS\Validator\HasValidator;
 use Shikiryu\SRSS\Validator\Validator;
@@ -21,7 +22,7 @@ class Category extends HasValidator implements SRSSElement
     {
         try {
             return (new Validator())->isObjectValid($this);
-        } catch (\ReflectionException $e) {
+        } catch (ReflectionException) {
             return false;
         }
     }

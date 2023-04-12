@@ -9,7 +9,7 @@ use Shikiryu\SRSS\SRSS;
 
 class BasicReaderTest extends TestCase
 {
-    public function testReadBasicRSS()
+    public function testReadBasicRSS(): void
     {
         $rss = SRSS::read(__DIR__.'/resources/basic.xml');
         self::assertEquals('test Home Page', $rss->title);
@@ -20,7 +20,7 @@ class BasicReaderTest extends TestCase
         self::assertTrue($rss->isValid());
     }
 
-    public function testSpecificationExampleRSS()
+    public function testSpecificationExampleRSS(): void
     {
         $rss = SRSS::read(__DIR__.'/resources/harvard.xml');
         self::assertEquals('Liftoff News', $rss->title);
@@ -41,7 +41,7 @@ class BasicReaderTest extends TestCase
         self::assertTrue($rss->isValid());
     }
 
-    public function testChannelImage()
+    public function testChannelImage(): void
     {
         $rss = SRSS::read(__DIR__.'/resources/media/cnn.xml');
         $image = $rss->image;
@@ -51,7 +51,7 @@ class BasicReaderTest extends TestCase
         self::assertEquals('https://www.cnn.com/entertainment/index.html', $image->link, var_export($image, true));
     }
 
-    public function testChannelCategory()
+    public function testChannelCategory(): void
     {
         $rss = SRSS::read(__DIR__.'/resources/cloud.xml');
         $categories = $rss->category;
@@ -62,7 +62,7 @@ class BasicReaderTest extends TestCase
         self::assertEquals('rssUpdates', $category->value, var_export($category, true));
     }
 
-    public function testCloud()
+    public function testCloud(): void
     {
         $rss = SRSS::read(__DIR__.'/resources/cloud.xml');
         $cloud = $rss->cloud;
@@ -74,7 +74,7 @@ class BasicReaderTest extends TestCase
         self::assertEquals('xml-rpc', $cloud->protocol, var_export($cloud, true));
     }
 
-    public function testSource()
+    public function testSource(): void
     {
         $rss = SRSS::read(__DIR__.'/resources/basic.xml');
         $firstItem = $rss->getFirst();
@@ -85,7 +85,7 @@ class BasicReaderTest extends TestCase
         self::assertEquals('Tomalak\'s Realm', $source->value);
     }
 
-    public function testEnclosure()
+    public function testEnclosure(): void
     {
         $rss = SRSS::read(__DIR__.'/resources/basic.xml');
         $item = $rss->getItem(2);

@@ -15,9 +15,9 @@ class Validator
     /**
      * @throws ReflectionException
      */
-    public function isPropertyValid($object, $property)
+    public function isPropertyValid($object, $property): bool
     {
-        $properties = array_filter($this->_getClassProperties(get_class($object)), fn($p) => $p->getName() === $property);
+        $properties = array_filter($this->_getClassProperties(get_class($object)), static fn($p) => $p->getName() === $property);
         if (count($properties) !== 1) {
             return false;
         }
@@ -26,7 +26,7 @@ class Validator
         $propertyValue = $object->{$properties->name};
         $propertyAnnotations = $this->_getPropertyAnnotations($properties);
 
-        if (!in_array('required', $propertyAnnotations, true) && empty($propertyValue)) {
+        if (empty($propertyValue) && !in_array('required', $propertyAnnotations, true)) {
             return true;
         }
 
@@ -67,7 +67,7 @@ class Validator
             $propertyValue = $object->{$property['name']};
 //            $propertyAnnotations = $this->_getPropertyAnnotations($property, get_class($object));
 
-            if (!in_array('required', $property['rules'], true) && empty($propertyValue)) {
+            if (empty($propertyValue) && !in_array('required', $property['rules'], true)) {
                 continue;
             }
 
@@ -109,7 +109,7 @@ class Validator
     {
         preg_match_all('#@(.*?)\n#s', $property->getDocComment(), $annotations);
 
-        return array_map(fn($annotation) => trim($annotation), $annotations[1]);
+        return array_map(static fn($annotation) => trim($annotation), $annotations[1]);
     }
 
     private function _validateString($value): bool
@@ -199,7 +199,7 @@ class Validator
         );
     }
 
-    private function _validateContentMedia($value)
+    private function _validateContentMedia($value): bool
     {
         if (is_array($value)) {
             foreach ($value as $content) {

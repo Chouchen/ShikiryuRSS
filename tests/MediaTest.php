@@ -5,7 +5,7 @@ use Shikiryu\SRSS\SRSS;
 
 class MediaTest extends TestCase
 {
-    public function testImages()
+    public function testImages(): void
     {
         $rss = SRSS::read(__DIR__.'/resources/media/cnn.xml');
         self::assertEquals('CNN.com - RSS Channel - Entertainment', $rss->title);
@@ -17,7 +17,7 @@ class MediaTest extends TestCase
         self::assertTrue($rss->isValid(), var_export($rss->channel->validated, true));
     }
 
-    public function testMusicVideo()
+    public function testMusicVideo(): void
     {
         $rss = SRSS::read(__DIR__.'/resources/media/music-video.xml');
         self::assertEquals('Music Videos 101', $rss->title);

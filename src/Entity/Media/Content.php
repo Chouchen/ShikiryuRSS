@@ -2,6 +2,7 @@
 
 namespace Shikiryu\SRSS\Entity\Media;
 
+use ReflectionException;
 use Shikiryu\SRSS\Entity\SRSSElement;
 use Shikiryu\SRSS\Validator\HasValidator;
 use Shikiryu\SRSS\Validator\Validator;
@@ -69,7 +70,7 @@ class Content extends HasValidator implements SRSSElement
     {
         try {
             return (new Validator())->isObjectValid($this);
-        } catch (\ReflectionException $e) {
+        } catch (ReflectionException) {
             return false;
         }
     }
