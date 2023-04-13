@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0">
+
+    <channel>
+        <title>test Home Page</title>
+        <link>https://www.test.com</link>
+        <description>Free web building tutorials</description>
+        <item>
+            <title>RSS Tutorial</title>
+            <source url="http://www.tomalak.org/links2.xml">Tomalak's Realm</source>
+            <link>https://www.test.com/xml/xml_rss.asp</link>
+            <description>New RSS tutorial on test</description>
+        </item>
+        <item>
+            <title>XML Tutorial</title>
+            <enclosure url="http://www.scripting.com/mp3s/touchOfGrey.mp3" length="5588242" type="audio/mpeg"/>
+            <link>https://www.test.com/xml</link>
+            <description>New XML tutorial on test</description>
+        </item>
+    </channel>
+
+</rss>
