@@ -17,23 +17,6 @@ use Shikiryu\SRSS\SRSSTools;
 class MediaContentParser extends DomDocument
 {
     protected DOMNode $node; // item node
-    protected $attr; // item's properties
-
-    // possible properties' names
-    protected static $possibilities = [
-        'title'         => 'nohtml',
-        'link'          => 'link',
-        'description'   => 'html',
-        'author'        => 'email',
-        'category'      => 'nohtml',
-        'comments'      => 'link',
-        'enclosure'     => '',
-        'guid'          => 'nohtml',
-        'pubDate'       => 'date',
-        'source'        => 'link',
-        'media:group'   => 'folder',
-        'media:content' => '',
-    ];
 
     /**
      * Constructor

@@ -5,8 +5,10 @@
   "license": "proprietary",
   "authors": [
     {
-      "name": "clement",
-      "email": "email@example.com"
+      "name": "Shikiryu",
+      "email": "projets@shiki.fr",
+      "homepage": "https://shikiryu.com",
+      "role": "Developer"
     }
   ],
   "autoload": {
