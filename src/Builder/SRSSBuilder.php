@@ -3,9 +3,6 @@
 namespace Shikiryu\SRSS\Builder;
 
 use DOMDocument;
-use DOMElement;
-use Shikiryu\SRSS\Entity\Channel;
-use Shikiryu\SRSS\Entity\Item;
 use Shikiryu\SRSS\Exception\DOMBuilderException;
 use Shikiryu\SRSS\SRSS;
 
@@ -20,13 +17,16 @@ class SRSSBuilder extends DomDocument
             $root = $this->createElement('rss');
 
             $root->setAttribute('version', '2.0');
-            $channel = $this->createElement('channel');
 
             $srss->channel->generator = 'Shikiryu RSS';
 
-            $this->appendChannelToDom($srss->channel, $channel);
+            $channel_builder = new ChannelBuilder($this);
+            $channel = $channel_builder->build($srss->channel);
 
-            $this->appendItemsToDom($srss->items, $channel);
+            $item_builder = new ItemBuilder($this);
+            foreach ($srss->items as $item) {
+                $channel->appendChild($item_builder->build($item));
+            }
 
             $root->appendChild($channel);
             $this->appendChild($root);
@@ -61,30 +61,5 @@ class SRSSBuilder extends DomDocument
         return $this
             ->buildRSS($srss)
             ->saveXml();
-    }
-
-    private function appendChannelToDom(Channel $channel, DOMElement $node): void
-    {
-        foreach (array_filter($channel->toArray(), static fn($el) => !empty($el)) as $name => $value) {
-            $new_node = $this->createElement($name, $value);
-            $node->appendChild($new_node);
-        }
-    }
-
-    private function appendItemsToDom(array $items, DOMElement $channel): void
-    {
-        foreach ($items as $item) {
-            $this->appendItemToDom($item, $channel);
-        }
-    }
-
-    private function appendItemToDom(Item $item, DOMElement $channel): void
-    {
-        $itemNode = $this->createElement('item');
-        foreach (array_filter($item->toArray()) as $name => $value) {
-            $new_node = $this->createElement($name, $value);
-            $itemNode->appendChild($new_node);
-        }
-        $channel->appendChild($itemNode);
     }
 }

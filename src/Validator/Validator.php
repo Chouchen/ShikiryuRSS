@@ -272,4 +272,9 @@ class Validator
     {
         return in_array($value, ['sample', 'full', 'nonstop']);
     }
+
+    private function _validateEmail($value): bool
+    {
+        return filter_var($value, FILTER_VALIDATE_EMAIL);
+    }
 }

@@ -126,7 +126,11 @@ class SRSS implements Iterator
             throw new PropertyNotFoundException(Channel::class, $name);
         }
         if ((new Validator())->isValidValueForObjectProperty($this->channel, $name, $val)) {
-            $this->channel->{$name} = $val;
+            if (SRSSTools::getPropertyType(Channel::class, $name) === 'array') {
+                $this->channel->{$name}[] = $val;
+            } else {
+                $this->channel->{$name} = $val;
+            }
         }
     }
 

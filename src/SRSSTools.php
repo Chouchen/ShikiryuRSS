@@ -4,9 +4,15 @@ namespace Shikiryu\SRSS;
 
 use DateTime;
 use DateTimeInterface;
+use ReflectionProperty;
 
 class SRSSTools
 {
+    public static function getPropertyType($object, $property): ?string
+    {
+        $rp = new ReflectionProperty($object, $property);
+        return $rp->getType()?->getName();
+    }
     public static function check($check, $flag)
     {
         return match ($flag) {
