@@ -16,50 +16,55 @@ use Shikiryu\SRSS\Validator\Validator;
 class Item extends HasValidator implements SRSSElement
 {
     /**
-     * @requiredOr description
-     * @nohtml
+     * @validate requiredOr description
+     * @format html
      */
-    public ?string $title = null;
+    protected ?string $title = null;
     /**
-     * @url
+     * @validate url
+     * @format url
      */
-    public ?string $link = null;
+    protected ?string $link = null;
     /**
-     * @requiredOr title
+     * @validate requiredOr title
+     * @format html
      */
-    public ?string $description = null;
+    protected ?string $description = null;
     /**
-     * @email
+     * @validate email
+     * @format email
      */
-    public ?string $author = null;
+    protected ?string $author = null;
     /**
      * @var Category[]
      */
-    public ?array $category = null;
+    protected ?array $category = null;
     /**
-     * @url
+     * @validate url
+     * @format url
      */
-    public ?string $comments = null;
+    protected ?string $comments = null;
     /**
      * @var Enclosure|null
      */
-    public ?Enclosure $enclosure = null;
-    public ?string $guid = null;
+    protected ?Enclosure $enclosure = null;
+    protected ?string $guid = null;
     /**
-     * @date
+     * @validate date
+     * @format date
      */
-    public ?string $pubDate = null;
+    protected ?string $pubDate = null;
 
     /**
      * @var Source|null
      */
-    public ?Source $source = null;
+    protected ?Source $source = null;
 
     /**
      * @var Content[]
      * @contentMedia
      */
-    public array $medias = [];
+    protected array $medias = [];
 
     public function isValid(): bool
     {

@@ -10,61 +10,73 @@ use Shikiryu\SRSS\Validator\Validator;
 class Content extends HasValidator implements SRSSElement
 {
     /**
-     * @url
+     * @validate url
+     * @format url
      */
-    public ?string $url = null;
+    protected ?string $url = null;
     /**
-     * @int
+     * @validate int
+     * @format int
      */
-    public ?int $filesize = null;
+    protected ?int $filesize = null;
     /**
-     * @mediaType
+     * @validate mediaType
      */
-    public ?string $type = null;
+    protected ?string $type = null;
     /**
-     * @mediaMedium
+     * @validate mediaMedium
+     * @format mediaMedium
      */
-    public ?string $medium = null;
+    protected ?string $medium = null;
     /**
-     * @bool
+     * @validate bool
+     * @format bool
      */
-    public ?bool $isDefault = null;
+    protected ?bool $isDefault = null;
     /**
-     * @mediaExpression
+     * @validate mediaExpression
+     * @format mediaExpression
      */
-    public ?string $expression = null;
+    protected ?string $expression = null;
     /**
-     * @int
+     * @validate int
+     * @format int
      */
-    public ?int $bitrate = null;
+    protected ?int $bitrate = null;
     /**
-     * @int
+     * @validate int
+     * @format int
      */
-    public ?int $framerate = null;
+    protected ?int $framerate = null;
     /**
-     * @float
+     * @validate float
+     * @format float
      */
-    public ?float $samplerate = null;
+    protected ?float $samplerate = null;
     /**
-     * @int
+     * @validate int
+     * @format int
      */
-    public ?int $channels = null;
+    protected ?int $channels = null;
     /**
-     * @int
+     * @validate int
+     * @format int
      */
-    public ?int $duration = null;
+    protected ?int $duration = null;
     /**
-     * @int
+     * @validate int
+     * @format int
      */
-    public ?int $height = null;
+    protected ?int $height = null;
     /**
-     * @int
+     * @validate int
+     * @format int
      */
-    public ?int $width = null;
+    protected ?int $width = null;
     /**
-     * @lang
+     * @validate lang
      */
-    public ?string $lang = null;
+    protected ?string $lang = null;
 
     public function isValid(): bool
     {

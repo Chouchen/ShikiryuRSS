@@ -4,6 +4,7 @@ use PHPUnit\Framework\TestCase;
 use Shikiryu\SRSS\Entity\Item;
 use Shikiryu\SRSS\SRSS;
 use Shikiryu\SRSS\SRSSTools;
+use Shikiryu\SRSS\Validator\Formator;
 
 class OriginalWriterSRSSTest extends TestCase
 {
@@ -38,8 +39,8 @@ class OriginalWriterSRSSTest extends TestCase
         $rss->addItemBefore($firstItem);
 
         self::assertCount(5, $rss->items, var_export($rss->items, true));
-        self::assertEquals('title 0', $rss->getFirst()->title, var_export($rss->items, true));
-        self::assertEquals('title 1', $rss->getItem(2)->title, var_export($rss->items, true));
+        self::assertEquals('<![CDATA[ title 0 ]]>', $rss->getFirst()->title, var_export($rss->items, true));
+        self::assertEquals('<![CDATA[ title 1 ]]>', $rss->getItem(2)->title, var_export($rss->items, true));
 
     }
 }

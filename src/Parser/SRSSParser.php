@@ -109,7 +109,7 @@ class SRSSParser extends DomDocument
                         $category->{$attribute->name} = $attribute->value;
                     }
                     $category->value = $child->nodeValue;
-                    $this->doc->channel->category[] = $category;
+                    $this->doc->channel->category = $category;
                 } else {
                     $this->doc->channel->{$child->nodeName} = $child->nodeValue;
                 }

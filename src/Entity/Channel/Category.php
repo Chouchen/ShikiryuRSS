@@ -10,13 +10,14 @@ use Shikiryu\SRSS\Validator\Validator;
 class Category extends HasValidator implements SRSSElement
 {
     /**
-     * @string
+     * @validate url
+     * @format url
      */
-    public ?string $domain = null;
+    protected ?string $domain = null;
     /**
-     * @string
+     * @validate string
      */
-    public ?string $value = null;
+    protected ?string $value = null;
 
     public function isValid(): bool
     {

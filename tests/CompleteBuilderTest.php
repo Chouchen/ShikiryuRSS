@@ -86,13 +86,13 @@ class CompleteBuilderTest extends TestCase
         $item->link = $item_link;
         $item->description = $item_description;
         $item->author = $item_author;
-        $item->category[] = $item_category;
+        $item->category = $item_category;
         $item->comments = $item_comments;
         $item->enclosure = $item_enclosure;
         $item->guid = $item_guid;
         $item->pubDate = $item_pubdate;
         $item->source = $item_source;
-        $item->medias[] = $item_media;
+        $item->medias = $item_media;
 
         $srss->addItem($item);
 

@@ -11,28 +11,10 @@ use Shikiryu\SRSS\Entity\Media\Content;
 
 class Validator
 {
+    use ReadProperties;
+
     protected ?object $object = null;
 
-
-    /**
-     * @param $object
-     * @param $property
-     * @return ReflectionProperty|null
-     * @throws ReflectionException
-     */
-    private function getReflectedProperty($object, $property): ?ReflectionProperty
-    {
-        $properties = array_filter(
-            $this->_getClassProperties(get_class($object)),
-            static fn($p) => $p->getName() === $property
-        );
-
-        if (count($properties) !== 1) {
-            return null;
-        }
-
-        return current($properties);
-    }
 
     /**
      * @param $object
@@ -138,18 +120,10 @@ class Validator
         return $this->{sprintf('_validate%s', ucfirst($annotation[0]))}($property, ...$args_annotation);
     }
 
-    /**
-     * @return ReflectionProperty[]
-     * @throws ReflectionException
-     */
-    private function _getClassProperties($class): array
-    {
-        return (new ReflectionClass($class))->getProperties();
-    }
 
     private function _getPropertyAnnotations(ReflectionProperty $property): array
     {
-        preg_match_all('#@(.*?)\n#s', $property->getDocComment(), $annotations);
+        preg_match_all('#@validate (.*?)\n#s', $property->getDocComment(), $annotations);
 
         return array_map(static fn($annotation) => trim($annotation), $annotations[1]);
     }
