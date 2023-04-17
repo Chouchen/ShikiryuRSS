@@ -10,25 +10,26 @@ use Shikiryu\SRSS\Validator\Validator;
 class Cloud extends HasValidator implements SRSSElement
 {
     /**
-     * @string
+     * @validate string
      */
-    public ?string $domain = null;
+    protected ?string $domain = null;
     /**
-     * @int
+     * @validate int
+     * @format int
      */
-    public ?int $port = null;
+    protected ?int $port = null;
     /**
-     * @string
+     * @validate string
      */
-    public ?string $path = null;
+    protected ?string $path = null;
     /**
-     * @string
+     * @validate string
      */
-    public ?string $registerProcedure = null;
+    protected ?string $registerProcedure = null;
     /**
-     * @string
+     * @validate string
      */
-    public ?string $protocol = null;
+    protected ?string $protocol = null;
 
     public function isValid(): bool
     {

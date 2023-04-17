@@ -10,14 +10,16 @@ use Shikiryu\SRSS\Validator\Validator;
 class Source extends HasValidator implements SRSSElement
 {
     /**
-     * @url
+     * @validate url
+     * @format url
      */
-    public ?string $url = null;
+    protected ?string $url = null;
 
     /**
-     * @nohtml
+     * @validate nohtml
+     * @format nohtml
      */
-    public ?string $value = null;
+    protected ?string $value = null;
 
     public function isValid(): bool
     {

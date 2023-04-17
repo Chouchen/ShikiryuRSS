@@ -10,19 +10,22 @@ use Shikiryu\SRSS\Validator\Validator;
 class Enclosure extends HasValidator implements SRSSElement
 {
     /**
-     * @url
+     * @validate url
+     * @format url
      */
-    public ?string $url = null;
+    protected ?string $url = null;
 
     /**
-     * @int
+     * @validate int
+     * @format int
      */
-    public ?int $length = null;
+    protected ?int $length = null;
 
     /**
-     * @mediaType
+     * @validate mediaType
+     * @format mediaType
      */
-    public ?string $type = null;
+    protected ?string $type = null;
 
     public function isValid(): bool
     {

@@ -5,6 +5,7 @@ use Shikiryu\SRSS\Builder\SRSSBuilder;
 use Shikiryu\SRSS\Entity\Item;
 use Shikiryu\SRSS\SRSS;
 use Shikiryu\SRSS\SRSSTools;
+use Shikiryu\SRSS\Validator\Formator;
 
 class BasicBuilderTest extends TestCase
 {
@@ -42,8 +43,8 @@ class BasicBuilderTest extends TestCase
 
         self::assertTrue($srss->isValid());
 
-        self::assertEquals($title, $srss->title);
-        self::assertEquals($description, $srss->description);
+        self::assertEquals('<![CDATA[ '.$title.' ]]>', $srss->title);
+        self::assertEquals('<![CDATA[ '.$description.' ]]>', $srss->description);
         self::assertEquals($link, $srss->link);
 
         $builder = new SRSSBuilder();

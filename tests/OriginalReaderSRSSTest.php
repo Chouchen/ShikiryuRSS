@@ -3,6 +3,7 @@
 use PHPUnit\Framework\TestCase;
 use Shikiryu\SRSS\SRSS;
 use Shikiryu\SRSS\SRSSTools;
+use Shikiryu\SRSS\Validator\Formator;
 
 class OriginalReaderSRSSTest extends TestCase
 {
@@ -19,7 +20,7 @@ class OriginalReaderSRSSTest extends TestCase
     public function testOriginalReader(): void
     {
         $rss = SRSS::read($this->original);
-        self::assertEquals('Liftoff News', $rss->title);
+        self::assertEquals('<![CDATA[ Liftoff News ]]>', $rss->title);
 
         $article1 = $rss->getItem(1);
         $articleFirst = $rss->getFirst();
@@ -27,7 +28,7 @@ class OriginalReaderSRSSTest extends TestCase
 
         $links = [];
         foreach($rss as $article) {
-            $links[] = sprintf('<a href="%s">%s %s</a>', $article->link, SRSSTools::formatDate('d/m/y', $article->pubDate), $article->title);
+            $links[] = sprintf('<a href="%s">%s %s</a>', $article->link, SRSSTools::getRSSDate('d/m/y', $article->pubDate), $article->title);
         }
         self::assertCount(4, $links, var_export($links, true));
 

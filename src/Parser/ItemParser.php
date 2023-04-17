@@ -27,7 +27,7 @@ class ItemParser extends DomDocument
                 if ($child->nodeName === 'media:group') {
                     self::_loadChildAttributes($item, $child);
                 } elseif  ($child->nodeName === 'media:content') {
-                    $item->medias[] = MediaContentParser::read($child);
+                    $item->medias = MediaContentParser::read($child);
                 }  elseif  ($child->nodeName === 'category') {
                     $category = new Item\Category();
                     foreach($child->attributes as $attribute) {

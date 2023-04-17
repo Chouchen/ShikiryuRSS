@@ -15,81 +15,93 @@ use Shikiryu\SRSS\Validator\Validator;
 class Channel extends HasValidator implements SRSSElement
 {
     /**
-     * @required
-     * @nohtml
+     * @validate required
+     * @format html
      */
-    public string $title = '';
+    protected string $title = '';
 
     /**
-     * @required
-     * @url
+     * @validate required
+     * @validate url
+     * @format url
      */
-    public string $link = '';
+    protected string $link = '';
 
     /**
-     * @required
+     * @validate required
+     * @format html
      */
-    public string $description = '';
+    protected string $description = '';
 
     /**
-     * @lang
+     * @validate lang
      */
-    public ?string $language = null;
+    protected ?string $language = null;
     /**
-     * @nohtml
+     * @validate nohtml
+     * @format nohtml
      */
-    public ?string $copyright = null;
+    protected ?string $copyright = null;
     /**
-     * @nohtml
+     * @validate nohtml
+     * @format nohtml
      */
-    public ?string $managingEditor = null;
+    protected ?string $managingEditor = null;
     /**
-     * @nohtml
+     * @validate nohtml
+     * @format nohtml
      */
-    public ?string $webMaster = null;
+    protected ?string $webMaster = null;
     /**
-     * @date
+     * @validate date
+     * @format date
      */
-    public ?string $pubDate = null;
+    protected ?string $pubDate = null;
     /**
-     * @date
+     * @validate date
+     * @format date
      */
-    public ?string $lastBuildDate = null;
+    protected ?string $lastBuildDate = null;
     /**
      * @var Category[]
      */
-    public ?array $category = null;
+    protected ?array $category = null;
     /**
-     * @nohtml
+     * @validate nohtml
+     * @format nohtml
      */
-    public ?string $generator = null;
+    protected ?string $generator = null;
     /**
-     * @url
+     * @validate url
+     * @format url
      */
-    public ?string $docs = null;
+    protected ?string $docs = null;
     /**
      * @var Cloud|null
      */
-    public ?Cloud $cloud = null;
+    protected ?Cloud $cloud = null;
     /**
-     * @int
+     * @validate int
+     * @format int
      */
-    public ?string $ttl = null;
-    public ?Image $image = null;
-    public ?string $rating = null;
+    protected ?string $ttl = null;
+    protected ?Image $image = null;
+    protected ?string $rating = null;
     /**
      * @var string|null
      * The purpose of the <textInput> element is something of a mystery. You can use it to specify a search engine box. Or to allow a reader to provide feedback. Most aggregators ignore it.
      */
-    public ?string $textInput = null;
+    protected ?string $textInput = null;
     /**
-     * @hour
+     * @validate hour
+     * @format hour
      */
-    public ?string $skipHours = null;
+    protected ?string $skipHours = null;
     /**
-     * @day
+     * @validate day
+     * @format day
      */
-    public ?string $skipDays = null;
+    protected ?string $skipDays = null;
 
     /**
      * @return bool
