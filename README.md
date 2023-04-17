@@ -22,6 +22,12 @@ For example, [Zend](http://framework.zend.com/manual/current/en/modules/zend.fee
 composer install shikiryu/shikiryurss
 ```
 
+or 
+
+```php
+include '/path/to/this/library/autoload.php';
+```
+
 ## :rocket: Usage
 
 ----------------------------------
