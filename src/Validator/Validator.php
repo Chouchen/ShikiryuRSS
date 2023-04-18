@@ -31,7 +31,7 @@ class Validator
         }
         $propertyAnnotations = $this->_getPropertyAnnotations($property);
 
-        if (empty($value) && !in_array('required', $propertyAnnotations, true)) {
+        if (empty($value) && count(array_filter($property['rules'], static fn($rule) => str_starts_with($rule, 'required'))) === 0) {
             return true;
         }
 
@@ -69,9 +69,9 @@ class Validator
      */
     public function isObjectValid($object): bool
     {
-        if (!$object->validated) {
+//        if (!$object->validated) {
             $object = $this->validateObject($object);
-        }
+//        }
 
         return !in_array(false, $object->validated, true);
     }
@@ -91,7 +91,7 @@ class Validator
         foreach ($properties as $property) {
             $propertyValue = $object->{$property['name']};
 
-            if (empty($propertyValue) && !in_array('required', $property['rules'], true)) {
+            if (empty($propertyValue) && count(array_filter($property['rules'], static fn($rule) => str_starts_with($rule, 'required'))) === 0) {
                 continue;
             }
 
@@ -117,7 +117,7 @@ class Validator
 
         $args_annotation = array_splice($annotation, 1);
 
-        return $this->{sprintf('_validate%s', ucfirst($annotation[0]))}($property, ...$args_annotation);
+        return $this->{sprintf('_validate%s', ucfirst($annotation[0]))}($property, $args_annotation);
     }
 
 
@@ -199,7 +199,6 @@ class Validator
     {
         $options = [
             'options' => [
-                'default' => 0,
                 'min_range' => 0,
                 'max_range' => 23
             ]
