@@ -1,114 +1,230 @@
 <?php
 
 use PHPUnit\Framework\TestCase;
+use Shikiryu\SRSS\Entity\Channel\Category;
+use Shikiryu\SRSS\Entity\Channel\Cloud;
+use Shikiryu\SRSS\Entity\Channel\Image;
+use Shikiryu\SRSS\Entity\Item\Enclosure;
+use Shikiryu\SRSS\Entity\Item\Source;
+use Shikiryu\SRSS\Exception\InvalidPropertyException;
 use Shikiryu\SRSS\SRSS;
 
 class FailingTest extends TestCase
 {
-    private ?SRSS $srss;
-
-    public function testInvalidChannel()
+    public function testInvalidChannelMandatory(): void
     {
-        $this->srss = SRSS::create();
-        self::assertFalse($this->srss->isValid(), var_export($this->srss->validated, true));
-        $this->srss->title = 'title'; // mandatory
-        self::assertFalse($this->srss->isValid(), var_export($this->srss->validated, true));
-        $this->srss->description = 'desc'; // mandatory
-        self::assertFalse($this->srss->isValid(), var_export($this->srss->validated, true));
-
-        $this->srss->link = 'desc'; // mandatory but should be a url
-        self::assertFalse($this->srss->isValid(), var_export($this->srss->validated, true));
-        $this->srss->link = 'https://example.org';
-        self::assertTrue($this->srss->isValid(), var_export($this->srss->validated, true));
-
-        $this->srss->language = 'en-en'; // should be a valid language
-        self::assertFalse($this->srss->isValid(), var_export($this->srss->validated, true));
-        $this->srss->language = 'en-us'; // should be a valid
-        self::assertTrue($this->srss->isValid(), var_export($this->srss->validated, true));
-
-        $this->srss->copyright = '<strong>test</strong>'; // should not have html element
-        self::assertFalse($this->srss->isValid(), var_export($this->srss->validated, true));
-        $this->srss->copyright = 'shikiryu';
-        self::assertTrue($this->srss->isValid(), var_export($this->srss->validated, true));
-
-        $this->srss->managingEditor = '<strong>test</strong>'; // should not have html element
-        self::assertFalse($this->srss->isValid(), var_export($this->srss->validated, true));
-        $this->srss->managingEditor = 'shikiryu';
-        self::assertTrue($this->srss->isValid(), var_export($this->srss->validated, true));
-
-        $this->srss->webMaster = '<strong>test</strong>'; // should not have html element
-        self::assertFalse($this->srss->isValid(), var_export($this->srss->validated, true));
-        $this->srss->webMaster = 'shikiryu';
-        self::assertTrue($this->srss->isValid(), var_export($this->srss->validated, true));
-
-        $this->srss->pubDate = 'test'; // should be a valid date
-        self::assertFalse($this->srss->isValid(), var_export($this->srss->validated, true));
-        $this->srss->pubDate = (new DateTime())->format(DATE_RSS);
-        self::assertTrue($this->srss->isValid(), var_export($this->srss->validated, true));
-
-        $this->srss->lastBuildDate = 'test'; // should be a valid date
-        self::assertFalse($this->srss->isValid(), var_export($this->srss->validated, true));
-        $this->srss->lastBuildDate = (new DateTime())->format(DATE_RSS);
-        self::assertTrue($this->srss->isValid(), var_export($this->srss->validated, true));
-
-        $this->srss->generator = '<strong>test</strong>'; // should not have html element
-        self::assertFalse($this->srss->isValid(), var_export($this->srss->validated, true));
-        $this->srss->generator = 'shikiryuRSS';
-        self::assertTrue($this->srss->isValid(), var_export($this->srss->validated, true));
-
-        $this->srss->docs = 'desc'; //should be a url
-        self::assertFalse($this->srss->isValid(), var_export($this->srss->validated, true));
-        $this->srss->docs = 'https://example.org';
-        self::assertTrue($this->srss->isValid(), var_export($this->srss->validated, true));
-
-        $this->srss->ttl = 'desc'; // should be an int
-        self::assertFalse($this->srss->isValid(), var_export($this->srss->validated, true));
-        $this->srss->ttl = '85';
-        self::assertTrue($this->srss->isValid(), var_export($this->srss->validated, true));
-
-        // rating and textInput not tested because there's no validation
-
-        $this->srss->skipHours = 'desc'; // should be an hour
-        self::assertFalse($this->srss->isValid(), var_export($this->srss->validated, true));
-        $this->srss->skipHours = '12';
-        self::assertTrue($this->srss->isValid(), var_export($this->srss->validated, true));
-
-        $this->srss->skipDays = 'desc'; // should be a day
-        self::assertFalse($this->srss->isValid(), var_export($this->srss->validated, true));
-        $this->srss->skipDays = 'monday';
-        self::assertTrue($this->srss->isValid(), var_export($this->srss->validated, true));
+        $rss = SRSS::create();
+        self::assertFalse($rss->isValid(), var_export($rss->validated, true));
+        $rss->title = 'title'; // mandatory
+        self::assertFalse($rss->isValid(), var_export($rss->validated, true));
+        $rss->description = 'desc'; // mandatory
+        self::assertFalse($rss->isValid(), var_export($rss->validated, true));
+        $rss->link = 'https://example.org';
+        self::assertTrue($rss->isValid(), var_export($rss->validated, true));
     }
 
-    public function testItem()
+    public function testInvalidChannelLink(): void
+    {
+        $this->expectException(InvalidPropertyException::class);
+        $rss = SRSS::create();
+        $rss->title = 'title'; // mandatory
+        $rss->description = 'desc'; // mandatory
+        $rss->link = 'desc'; // mandatory but should be an url
+    }
+
+    public function testInvalidChannelLanguage(): void
+    {
+        $rss = SRSS::create();
+        $this->expectException(InvalidPropertyException::class);
+        $rss->language = 'en-en'; // should be a valid language
+    }
+
+    public function testInvalidChannelCopyright(): void
+    {
+        $rss = SRSS::create();
+        $this->expectException(InvalidPropertyException::class);
+        $rss->copyright = '<strong>test</strong>'; // should not have html element
+    }
+
+    public function testInvalidChannelManagingEditor(): void
+    {
+        $rss = SRSS::create();
+        $this->expectException(InvalidPropertyException::class);
+        $rss->managingEditor = '<strong>test</strong>'; // should not have html element
+    }
+
+    public function testInvalidChannelWebmaster(): void
+    {
+        $rss = SRSS::create();
+        $this->expectException(InvalidPropertyException::class);
+        $rss->webMaster = '<strong>test</strong>'; // should not have html element
+    }
+
+    public function testInvalidChannelPubDate(): void
+    {
+        $rss = SRSS::create();
+        $this->expectException(InvalidPropertyException::class);
+        $rss->pubDate = 'test'; // should be a valid date
+    }
+
+    public function testInvalidChannelLastBuildDate(): void
+    {
+        $rss = SRSS::create();
+        $this->expectException(InvalidPropertyException::class);
+        $rss->lastBuildDate = 'test'; // should be a valid date
+    }
+
+    public function testInvalidChannelGenerator(): void
+    {
+        $rss = SRSS::create();
+        $this->expectException(InvalidPropertyException::class);
+        $rss->generator = '<strong>test</strong>'; // should not have html element
+    }
+
+    public function testInvalidChannelDocs(): void
+    {
+        $rss = SRSS::create();
+        $this->expectException(InvalidPropertyException::class);
+        $rss->docs = 'desc'; //should be a url
+    }
+
+    public function testInvalidChannelTTL(): void
+    {
+        $rss = SRSS::create();
+        $this->expectException(InvalidPropertyException::class);
+        $rss->ttl = 'desc'; // should be an int
+    }
+
+    public function testInvalidChannelSkipHours(): void
+    {
+        $rss = SRSS::create();
+        $this->expectException(InvalidPropertyException::class);
+        $rss->skipHours = 'desc'; // should be an hour
+    }
+
+    public function testInvalidChannelSkipDays(): void
+    {
+        $rss = SRSS::create();
+        $this->expectException(InvalidPropertyException::class);
+        $rss->skipDays = 'desc'; // should be a day
+    }
+
+    public function testInvalidItemAuthor(): void
     {
         $item = new Shikiryu\SRSS\Entity\Item();
+        $this->expectException(InvalidPropertyException::class);
+        $item->author = 'test'; // should be an email
+    }
 
-        self::assertFalse($item->isValid(), var_export($item->validated, true));
+    public function testInvalidItemComments(): void
+    {
+        $item = new Shikiryu\SRSS\Entity\Item();
+        $this->expectException(InvalidPropertyException::class);
+        $item->comments = 'test'; // should be an url
+    }
+
+    public function testInvalidItemMandatory(): void
+    {
+        $item = new Shikiryu\SRSS\Entity\Item();
         $item->title = 'title';
         self::assertTrue($item->isValid(), var_export($item->validated, true));
-
-        $item->link = 'test';
-        self::assertFalse($item->isValid(), var_export($item->validated, true));
-        $item->link = 'https://example.org/link1';
-        self::assertTrue($item->isValid(), var_export($item->validated, true));
-
-        $item->title = null;
-        self::assertFalse($item->isValid(), var_export($item->validated, true));
         $item->description = 'desc';
-        self::assertTrue($item->isValid(), var_export($item->validated, true));
-        $item->title = 'title';
-        self::assertTrue($item->isValid(), var_export($item->validated, true));
-
-        $item->author = 'test';
-        self::assertFalse($item->isValid(), var_export($item->validated, true));
-        $item->author = 'email@example.org';
+        $item->title = null;
         self::assertTrue($item->isValid(), var_export($item->validated, true));
 
-        $item->comments = 'test';
-        self::assertFalse($item->isValid(), var_export($item->validated, true));
-        $item->comments = 'https://example.org/link1';
-        self::assertTrue($item->isValid(), var_export($item->validated, true));
+        $this->expectException(InvalidPropertyException::class);
+        $item->title = null;
+        $item->description = null;
+    }
 
-        // guid is not validated and, so, not tested
+    public function testChannelCategoryDomain(): void
+    {
+        $category = new Category();
+        $this->expectException(InvalidPropertyException::class);
+        $category->domain = 'test';
+    }
+
+    public function testChannelCloudPort(): void
+    {
+        $cloud = new Cloud();
+        $this->expectException(InvalidPropertyException::class);
+        $cloud->port = 'test';
+    }
+
+    public function testChannelImageUrl(): void
+    {
+        $image = new Image();
+        $this->expectException(InvalidPropertyException::class);
+        $image->url = 'test';
+    }
+
+    public function testChannelImageTitle(): void
+    {
+        $image = new Image();
+        $this->expectException(InvalidPropertyException::class);
+        $image->title = '<strong>test</strong>';
+    }
+
+    public function testChannelImageLink(): void
+    {
+        $image = new Image();
+        $this->expectException(InvalidPropertyException::class);
+        $image->link = 'test';
+    }
+
+    public function testChannelImageWidthType(): void
+    {
+        $image = new Image();
+        $this->expectException(InvalidPropertyException::class);
+        $image->width = 'test';
+    }
+
+    public function testChannelImageWidthMax(): void
+    {
+        $image = new Image();
+        $this->expectException(InvalidPropertyException::class);
+        $image->width = '150';
+    }
+
+    public function testChannelImageHeightType(): void
+    {
+        $image = new Image();
+        $this->expectException(InvalidPropertyException::class);
+        $image->height = 'test';
+    }
+
+    public function testChannelImageHeightMax(): void
+    {
+        $image = new Image();
+        $this->expectException(InvalidPropertyException::class);
+        $image->height = '500';
+    }
+
+    public function testItemEnclosureUrl(): void
+    {
+        $enclosure = new Enclosure();
+        $this->expectException(InvalidPropertyException::class);
+        $enclosure->url = 'test';
+    }
+
+    public function testItemEnclosureLength(): void
+    {
+        $enclosure = new Enclosure();
+        $this->expectException(InvalidPropertyException::class);
+        $enclosure->length = 'test';
+    }
+
+    public function testItemSourceUrl()
+    {
+        $source = new Source();
+        $this->expectException(InvalidPropertyException::class);
+        $source->url = 'test';
+    }
+
+    public function testItemSourceValue()
+    {
+        $source = new Source();
+        $this->expectException(InvalidPropertyException::class);
+        $source->value = '<strong>test</strong>';
     }
 }

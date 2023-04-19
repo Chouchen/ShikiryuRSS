@@ -24,6 +24,7 @@ class Validator
      */
     public function isValidValueForObjectProperty($object, $property, $value): bool
     {
+        $this->object = $object;
         try {
             $property = $this->getReflectedProperty($object, $property);
         } catch (ReflectionException) {
@@ -31,17 +32,19 @@ class Validator
         }
         $propertyAnnotations = $this->_getPropertyAnnotations($property);
 
-        if (empty($value) && count(array_filter($property['rules'], static fn($rule) => str_starts_with($rule, 'required'))) === 0) {
+        if (empty($value) && count(array_filter($propertyAnnotations, static fn($rule) => str_starts_with($rule, 'required'))) === 0) {
             return true;
         }
 
         foreach ($propertyAnnotations as $propertyAnnotation) {
             $annotation = explode(' ', $propertyAnnotation);
 
-            $object->validated[$property->name] = $this->_validateProperty($annotation, $value);
+            if ($this->_validateProperty($annotation, $value) === false) {
+                return false;
+            }
         }
 
-        return count(array_filter($object->validated, static fn($v) => ($v !== null && $v === false))) === 0;
+        return true;
     }
 
     /**
@@ -69,6 +72,7 @@ class Validator
      */
     public function isObjectValid($object): bool
     {
+        $object->validated = [];
 //        if (!$object->validated) {
             $object = $this->validateObject($object);
 //        }
@@ -249,5 +253,14 @@ class Validator
     private function _validateEmail($value): bool
     {
         return filter_var($value, FILTER_VALIDATE_EMAIL);
+    }
+
+    private function _validateMax($value, array $max): bool
+    {
+        return $value <= current($max);
+    }
+    private function _validateMin($value, array $max): bool
+    {
+        return $value >= current($max);
     }
 }
