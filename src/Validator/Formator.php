@@ -143,7 +143,7 @@ class Formator
             return $check;
         }
 
-        return sprintf('<![CDATA[ %s ]]>', htmlspecialchars($check));
+        return sprintf('<![CDATA[ %s ]]>', $check);
     }
 
     /**

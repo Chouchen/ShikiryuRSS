@@ -110,6 +110,18 @@ class SRSSParser extends DomDocument
                     }
                     $category->value = $child->nodeValue;
                     $this->doc->channel->category = $category;
+                } elseif ($child->nodeName === 'skipHours') {
+                    foreach ($child->childNodes as $hour) {
+                        if ($hour->nodeType === XML_ELEMENT_NODE) {
+                            $this->doc->channel->skipHours = $hour->nodeValue;
+                        }
+                    }
+                }  elseif ($child->nodeName === 'skipDays') {
+                    foreach ($child->childNodes as $day) {
+                        if ($day->nodeType === XML_ELEMENT_NODE) {
+                            $this->doc->channel->skipDays = $day->nodeValue;
+                        }
+                    }
                 } else {
                     $this->doc->channel->{$child->nodeName} = $child->nodeValue;
                 }

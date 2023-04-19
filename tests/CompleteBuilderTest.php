@@ -37,8 +37,8 @@ class CompleteBuilderTest extends TestCase
         $image->title = 'title of image';
         $rating = 'yes';
         $textInput = 'ignore';
-        $skipDays = 'monday';
-        $skipHours = '8';
+        $skipDays = ['monday'];
+        $skipHours = ['8', '9'];
 
         $srss = SRSS::create();
         $srss->title = $title;

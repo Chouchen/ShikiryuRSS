@@ -201,17 +201,38 @@ class Validator
 
     private function _validateHour($value): bool
     {
+        if (is_array($value)) {
+            foreach ($value as $val) {
+                if ($this->_validateHour($val) === false) {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
         $options = [
             'options' => [
                 'min_range' => 0,
                 'max_range' => 23
             ]
         ];
+
         return filter_var($value, FILTER_VALIDATE_INT, $options) !== false;
     }
 
     private function _validateDay($value): bool
     {
+        if (is_array($value)) {
+            foreach ($value as $val) {
+                if ($this->_validateDay($val) === false) {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
         return in_array(
             strtolower($value),
             ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']
