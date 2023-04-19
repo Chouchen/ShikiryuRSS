@@ -96,12 +96,12 @@ class Channel extends HasValidator implements SRSSElement
      * @validate hour
      * @format hour
      */
-    protected ?string $skipHours = null;
+    protected ?array $skipHours = null;
     /**
      * @validate day
      * @format day
      */
-    protected ?string $skipDays = null;
+    protected ?array $skipDays = null;
 
     /**
      * @return bool

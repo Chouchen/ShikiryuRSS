@@ -12,6 +12,17 @@ use Shikiryu\SRSS\Validator\Validator;
 
 /**
  * https://cyber.harvard.edu/rss/rss.html#hrelementsOfLtitemgt
+ * @property null|string title
+ * @property null|string link
+ * @property null|string description
+ * @property null|string author
+ * @property null|array category
+ * @property null|string comments
+ * @property null|Enclosure enclosure
+ * @property null|string guid
+ * @property null|string pubDate
+ * @property null|Source source
+ * @property array medias
  */
 class Item extends HasValidator implements SRSSElement
 {

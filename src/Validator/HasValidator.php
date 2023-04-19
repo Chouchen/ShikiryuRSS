@@ -2,6 +2,7 @@
 
 namespace Shikiryu\SRSS\Validator;
 
+use Shikiryu\SRSS\Exception\InvalidPropertyException;
 use Shikiryu\SRSS\Exception\PropertyNotFoundException;
 use Shikiryu\SRSS\Exception\SRSSException;
 use Shikiryu\SRSS\SRSSTools;
@@ -27,17 +28,19 @@ abstract class HasValidator
         if (!property_exists(static::class, $name)) {
             throw new PropertyNotFoundException(static::class, $name);
         }
-        if ((new Validator())->isValidValueForObjectProperty($this, $name, $val)) {
 
-            if (SRSSTools::getPropertyType(static::class, $name) === 'array') {
-                /** @var array $this->{$name}  */
-                $this->{$name}[] = $val;
-            } else {
-                $val = is_string($val) ? (new Formator())->formatValue($this, $name, $val) : $val;
-                $this->{$name} = $val;
-            }
-
+        if (!(new Validator())->isValidValueForObjectProperty($this, $name, $val)) {
+            throw new InvalidPropertyException(get_class($this), $name, $val);
         }
+
+        if (SRSSTools::getPropertyType(static::class, $name) === 'array') {
+            /** @var array $this->{$name}  */
+            $this->{$name}[] = $val;
+        } else {
+            $val = is_string($val) ? (new Formator())->formatValue($this, $name, $val) : $val;
+            $this->{$name} = $val;
+        }
+
     }
 
     /**

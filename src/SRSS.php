@@ -11,6 +11,7 @@ use Shikiryu\SRSS\Entity\Channel\Cloud;
 use Shikiryu\SRSS\Entity\Channel\Image;
 use Shikiryu\SRSS\Entity\Item;
 use Shikiryu\SRSS\Exception\ChannelNotFoundInRSSException;
+use Shikiryu\SRSS\Exception\InvalidPropertyException;
 use Shikiryu\SRSS\Exception\PropertyNotFoundException;
 use Shikiryu\SRSS\Exception\SRSSException;
 use Shikiryu\SRSS\Exception\UnreadableRSSException;
@@ -27,17 +28,18 @@ use Shikiryu\SRSS\Validator\Validator;
  * @property null|string $managingEditor
  * @property null|string $webMaster
  * @property null|string $pubDate
- * @property null|string $lastBuildDate
+ * @property null|string     $lastBuildDate
  * @property null|Category[] $category
- * @property null|string $generator
- * @property null|string $docs
- * @property null|Cloud $cloud
- * @property null|string $ttl
- * @property null|Image $image
- * @property null|string $rating
- * @property null|string $textInput
- * @property null|string $skipHours
- * @property null|string $skipDays
+ * @property null|string     $generator
+ * @property null|string     $docs
+ * @property null|Cloud      $cloud
+ * @property null|string     $ttl
+ * @property null|Image      $image
+ * @property null|string     $rating
+ * @property null|string     $textInput
+ * @property null|string     $skipHours
+ * @property null|string     $skipDays
+ * @property string|null     $validated
  */
 class SRSS implements Iterator
 {
@@ -126,15 +128,16 @@ class SRSS implements Iterator
         if (!property_exists(Channel::class, $name)) {
             throw new PropertyNotFoundException(Channel::class, $name);
         }
-        if ((new Validator())->isValidValueForObjectProperty($this->channel, $name, $val)) {
 
-            if (SRSSTools::getPropertyType(Channel::class, $name) === 'array') {
-                $this->channel->{$name} = $val;
-            } else {
-                $val = is_string($val) ? (new Formator())->formatValue($this->channel, $name, $val) : $val;
-                $this->channel->{$name} = $val;
-            }
+        if (!(new Validator())->isValidValueForObjectProperty($this->channel, $name, $val)) {
+            throw new InvalidPropertyException(get_class($this), $name, $val);
+        }
 
+        if (SRSSTools::getPropertyType(Channel::class, $name) === 'array') {
+            $this->channel->{$name} = $val;
+        } else {
+            $val = is_string($val) ? (new Formator())->formatValue($this->channel, $name, $val) : $val;
+            $this->channel->{$name} = $val;
         }
     }
 

@@ -24,6 +24,7 @@ class Validator
      */
     public function isValidValueForObjectProperty($object, $property, $value): bool
     {
+        $this->object = $object;
         try {
             $property = $this->getReflectedProperty($object, $property);
         } catch (ReflectionException) {
@@ -31,17 +32,19 @@ class Validator
         }
         $propertyAnnotations = $this->_getPropertyAnnotations($property);
 
-        if (empty($value) && !in_array('required', $propertyAnnotations, true)) {
+        if (empty($value) && count(array_filter($propertyAnnotations, static fn($rule) => str_starts_with($rule, 'required'))) === 0) {
             return true;
         }
 
         foreach ($propertyAnnotations as $propertyAnnotation) {
             $annotation = explode(' ', $propertyAnnotation);
 
-            $object->validated[$property->name] = $this->_validateProperty($annotation, $value);
+            if ($this->_validateProperty($annotation, $value) === false) {
+                return false;
+            }
         }
 
-        return count(array_filter($object->validated, static fn($v) => ($v !== null && $v === false))) === 0;
+        return true;
     }
 
     /**
@@ -69,9 +72,10 @@ class Validator
      */
     public function isObjectValid($object): bool
     {
-        if (!$object->validated) {
+        $object->validated = [];
+//        if (!$object->validated) {
             $object = $this->validateObject($object);
-        }
+//        }
 
         return !in_array(false, $object->validated, true);
     }
@@ -91,7 +95,7 @@ class Validator
         foreach ($properties as $property) {
             $propertyValue = $object->{$property['name']};
 
-            if (empty($propertyValue) && !in_array('required', $property['rules'], true)) {
+            if (empty($propertyValue) && count(array_filter($property['rules'], static fn($rule) => str_starts_with($rule, 'required'))) === 0) {
                 continue;
             }
 
@@ -117,7 +121,7 @@ class Validator
 
         $args_annotation = array_splice($annotation, 1);
 
-        return $this->{sprintf('_validate%s', ucfirst($annotation[0]))}($property, ...$args_annotation);
+        return $this->{sprintf('_validate%s', ucfirst($annotation[0]))}($property, $args_annotation);
     }
 
 
@@ -197,18 +201,38 @@ class Validator
 
     private function _validateHour($value): bool
     {
+        if (is_array($value)) {
+            foreach ($value as $val) {
+                if ($this->_validateHour($val) === false) {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
         $options = [
             'options' => [
-                'default' => 0,
                 'min_range' => 0,
                 'max_range' => 23
             ]
         ];
+
         return filter_var($value, FILTER_VALIDATE_INT, $options) !== false;
     }
 
     private function _validateDay($value): bool
     {
+        if (is_array($value)) {
+            foreach ($value as $val) {
+                if ($this->_validateDay($val) === false) {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
         return in_array(
             strtolower($value),
             ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']
@@ -250,5 +274,14 @@ class Validator
     private function _validateEmail($value): bool
     {
         return filter_var($value, FILTER_VALIDATE_EMAIL);
+    }
+
+    private function _validateMax($value, array $max): bool
+    {
+        return $value <= current($max);
+    }
+    private function _validateMin($value, array $max): bool
+    {
+        return $value >= current($max);
     }
 }
